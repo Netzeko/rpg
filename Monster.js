@@ -80,11 +80,14 @@ class Monster{
 	}
 	
 	computeDeath(attacker){
+		//Todo:gerer si un monstre en tue un autre
+		//donner l'exp au groupe, pas au perso
 		attacker.exp += this.exp;
 		attacker.totalexp += this.exp;
 		attacker.levelUp();
 		attacker.showProperty('exp');
 		clearTimeout(this.nextAttack);
+		removeEnnemy(this.id);
 		return 2;
 	}
 }

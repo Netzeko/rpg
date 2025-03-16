@@ -103,10 +103,8 @@ class Character{
 		showBars(this);
 	}
 	
-	regenerate(){
-		if( this.regeneration){
-			
-		
+	regenerate(force = false){
+		if( this.regeneration || force){		
 			if(this.health < this.maxhealth ){
 				this.health += Math.floor(1+this.constitution/10);
 				if(this.health > this.maxhealth){

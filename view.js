@@ -143,7 +143,7 @@ function showSkillsChar(id){
 	div.innerHTML = '';
 	for(var i=0;i<members[id]._skills.length;i++){
 		div.innerHTML +=
-			'<input type="button" value="'+members[id]._skills[i].getName()+'" onclick="useSkill(\''+members[id]._skills[i].getClassName()+'\')"/>';
+			'<input type="button" value="'+members[id]._skills[i].getName()+'" onclick="s.useSkill(selectedChar,targetedChar,\''+members[id]._skills[i].getClassName()+'\')"/>';
 	}
 }
 

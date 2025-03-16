@@ -86,7 +86,10 @@ class Save{
 			if(defenser.health <= 0){
 				console.log('dead');
 				defenser.computeDeath(attacker);
-				return 2;
+			}
+			if(attacker.health <= 0){
+				console.log('dead');
+				attacker.computeDeath(attacker);
 			}
 			return 1;
 			
@@ -94,7 +97,21 @@ class Save{
 		return -1;
 	}
 	
-	
+	useSkill(attacker,defenser,skillname){
+		if(!defenser || !attacker) return;
+
+		if(attacker._skills[skillname].use(attacker,defenser)){
+			console.log(skillname+' used');
+			if(defenser.health <= 0){
+				defenser.computeDeath(attacker);
+			}
+			if(attacker.health <= 0){
+				attacker.computeDeath(attacker);
+			}
+		}else{
+				console.log('unable to use '+skillname+'');
+		}
+	}
 	
 	init(){
 		console.log('Initialize');

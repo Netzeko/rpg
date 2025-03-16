@@ -14,18 +14,11 @@ var partyCards = [null,null,null,null,null,null,null];
 var skills = [];
 
 
+
+
 function attackTarget(){
 	if(selectedChar && targetedChar){
 		var result = s.computeAttack(selectedChar,targetedChar);
-		if(result == 2 && targetedChar.isMonster){
-			removeEnnemy(targetedChar.id);
-			var m = randomMonster();
-			if(m){
-				target('ennemy',m.id,m.slot)
-			}else{
-				target('ennemy',0,0);
-			}
-		}
 	}
 }
 
@@ -115,6 +108,15 @@ function removeEnnemy(id){
 	ennemies[id] = null;
 	ennemyCards[getCard(id)] = null;
 	currentEnnemies--;
+	//Si la cible est morte, on en prend une autre au hasard
+	if(targetedChar.id == id){
+		var m = randomMonster();
+		if(m){
+			target('ennemy',m.id,m.slot)
+		}else{
+			target('ennemy',0,0);
+		}
+	}
 }
 
 function showDead(id){
@@ -128,8 +130,19 @@ function showDead(id){
 	}
 }
 
+function addSkill(sk){
+	if(typeof sk == 'function'){
+		skills[skills.length] = sk;
+		skills[sk.getClassName()] = sk;
+	}
+}
+
 function initSkillbook(){
 	var availableSkills = [];
+	addSkill(Heal);
+	addSkill(Fireball);
+	addSkill(Meditate);
+	/*
 	if(typeof Heal == 'function'){
 		availableSkills[availableSkills.length] = Heal;
 		availableSkills['Heal'] = Heal;
@@ -138,12 +151,16 @@ function initSkillbook(){
 		availableSkills[availableSkills.length] = Fireball;
 		availableSkills['Fireball'] = Fireball;
 	}
-	addSkillBookWindow(availableSkills);
-	return availableSkills;
+	if(typeof Meditate == 'function'){
+		availableSkills[availableSkills.length] = Meditate;
+		availableSkills['Meditate'] = Meditate;
+	}*/
+	addSkillBookWindow(skills);
+	//return availableSkills;
 }
 
 function init(){
-	skills = initSkillbook();
+	initSkillbook();
 	s.init();
 	setTimeout("regenerate()",1000);
 
@@ -157,12 +174,7 @@ function learnSkill(skillname){
 	}
 }
 
-function useSkill(skillname){
-	if(!targetedChar) return;
-	console.log(skillname+' used');
 
-	selectedChar._skills[skillname].use(selectedChar,targetedChar);
-}
 
 function regenerate(){
 	for(var i =1;i<members.length;i++){
