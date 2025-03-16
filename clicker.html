@@ -1,111 +1,75 @@
 <script src="toolbox.js"></script>
+<script src="Save.js"></script>
+<script src="Monster.js"></script>
 
 <script>
-	class Save{
-		constructor() {
-			this.health = 10;
-			this.maxhealth = 10;
-			this.exp = 0;
-			this.playername = 'Zero';
-		}
-		
-		
-		loadFromCookie(savename = ''){
-			var data = getCookie('save'+savename);
-			if(data.length == 0){
-				return false;
-			}
-			var dataArray = data.split('/');
-			console.log('loading '+savename+', '+dataArray.length+' properties');
-			for(var i = 0;i<dataArray.length;i++){
-				
-				var variable = dataArray[i].split(':');
-				if(variable[0].length ==0) continue;
-				
-				console.log('prop '+variable[0]+'='+variable[1]+' ('+variable[2]+')');
-				if(variable[2].localeCompare('number') == 0){
-					this[variable[0]] = Number(variable[1]);
-				}else if(variable[2].localeCompare('string') == 0){
-					this[variable[0]] = variable[1];
-				}
-				//console.log('saved as '+typeof this[variable[0]]);
-				
-			}
-
-		}
-		
-		saveInCookie(savename = ''){
-			console.log('saving '+savename);
-			var keys = Object.keys(this);
-			var savetext = '';
-			for(var i = 0;i<keys.length;i++){
-				//console.log('prop '+keys[i]);
-				savetext+=''+keys[i]+':'+this[keys[i]]+':'+(typeof this[keys[i]])+'/';
-			}
-			setCookie('save'+savename,savetext);
-		}
-		
-		showProperty(prop){			
-			var htmlout = document.getElementById(prop);
-			if(htmlout){
-				htmlout.innerHTML = this[prop];
-			}
-		}
-		
-		showProperties(){
-			var keys = Object.keys(this);
-			for(var i = 0;i<keys.length;i++){
-				this.showProperty(keys[i]);
-			}
-		}
-		
-		regenerate(){
-			if(this.health < this.maxhealth){
-				this.health += 1;
-				this.showProperty('health');
-			}
-			setTimeout("s.regenerate()",2000);
-		}
-		
-		
-		attack(){
-			if(this.health > 0){
-				this.health -= 1;
-				this.exp += 1;
-				this.showProperty('health');
-				this.showProperty('exp');
-			}
-		}
-		
-		
-		init(){
-			console.log('Initialize');
-			this.showProperties();
-			setTimeout(this.regenerate,2000);
-			console.log('End initialize');
-		}
-	}
-
+	
 	var s = new Save();
 	s.loadFromCookie();
+	var m;
 	
-	 
 	
+	function summon(){
+		m = new Monster(0);
+		m.showProperties();
+		show('monster0');
+	}
 	
+	function attackTarget(){
+		var result = s.attackTarget(m);
+		if(result == 2){
+			hide('monster0');
+		}
+	}
+	
+	function upgrade(attr){
+		s.upgrade(attr);
+	}
 	//setCookie('test','01');
 	console.log('save='+getCookie('save'));
 </script>
+<div id="showmonster">
+	<input type="button" value="Summon monster" onclick="summon()"/>
+
+</div>
+
+<div id="monster0" style="display:none;">
+	ennemy : <span id="monster0name"></span><br/>
+	health : <span id="monster0health"></span>/<span id="monster0maxhealth"></span><br/>
+
+	<input type="button" value="attack" onclick="attackTarget(m)"/>
+</div>
+<hr/>
 
 name : <span id="playername"></span><br/>
+level : <span id="level"></span> | available points : <span id="points"></span><br/>
 health : <span id="health"></span>/<span id="maxhealth"></span><br/>
+endurance : <span id="endurance"></span>/<span id="maxendurance"></span><br/>
+mana : <span id="mana"></span>/<span id="maxmana"></span><br/>
+mind : <span id="mind"></span>/<span id="maxmind"></span><br/>
 exp : <span id="exp"></span><br/>
-<input type="button" value="attack" onclick="s.attack()"/>
-<input type="button" value="save" onclick="s.saveInCookie()"/>
+strength : <span id="strength"></span>
+<input type="button" value="+" onclick="upgrade('strength')"/><br/>
+constitution : <span id="constitution"></span>
+<input type="button" value="+" onclick="upgrade('constitution')"/><br/>
+dexterity : <span id="dexterity"></span>
+<input type="button" value="+" onclick="upgrade('dexterity')"/><br/>
+perception : <span id="perception"></span>
+<input type="button" value="+" onclick="upgrade('perception')"/><br/>
+spirit : <span id="spirit"></span>
+<input type="button" value="+" onclick="upgrade('spirit')"/><br/>
+wisdom : <span id="wisdom"></span>
+<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
+luck : <span id="luck"></span>
+<input type="button" value="+" onclick="upgrade('luck')"/><br/>
+<hr/>
+	<input type="button" value="save" onclick="s.saveInCookie()"/>
+
 
 
 <script>
 	s.init();
-	
+//console.log(m);
 </script>
 
 

@@ -17,3 +17,28 @@ function getCookie(cname){
     }
     return "";
 }
+
+function show(id,display = 'block'){
+	var node = document.getElementById(id);
+	if(node){
+		node.style.display = display;
+	}
+}
+
+function hide(id){
+	var node = document.getElementById(id);
+	if(node){
+		node.style.display = 'none';
+	}
+}
+
+function switchDisplay(id,display = 'block'){
+	var node = document.getElementById(id);
+	if(node ){
+		if(node.style.display == 'none'){
+			node.style.display = display;
+		}else{
+		node.style.display = 'none';
+		}
+	}
+}
