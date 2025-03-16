@@ -1,7 +1,7 @@
 class Save{
 	constructor() {
 		this.level = 1;
-		
+		this.gold = 0;
 		
 		
 		//Attributes
@@ -23,10 +23,10 @@ class Save{
 	}
 	
 	calculateStats(refresh = false){
-		this.maxhealth = 10+this.level+this.constitution*5;
-		this.maxendurance = 10+this.level+this.strength*5;
-		this.maxmana = 10+this.level+this.wisdom*5;
-		this.maxmind = 10+this.level+this.spirit*5;
+		this.maxhealth = 10+this.level+this.constitution*8;
+		this.maxendurance = 10+this.level+this.strength*8;
+		this.maxmana = 10+this.level+this.wisdom*8;
+		this.maxmind = 10+this.level+this.spirit*8;
 		
 		if(refresh){
 			this.health = this.maxhealth;
@@ -37,7 +37,7 @@ class Save{
 		
 		this.attack = (this.strength / 5)*10;//changer par l'attaque de l'arme
 		this.defense = 5;//changer par l'armure
-		this.precision = 10+this.perception*5;
+		this.precision = 10+this.dexterity*5;
 		this.dodge = 10+this.perception*5;
 	}
 	
@@ -92,12 +92,48 @@ class Save{
 		}
 	}
 	
-	regenerate(){
+	regenerateHealth(){
 		if(this.health < this.maxhealth){
-			this.health += 1;
+			this.health += Math.floor(1+this.constitution/10);
+			if(this.health > this.maxhealth){
+				this.health = this.maxhealth;
+			}
 			this.showProperty('health');
 		}
-		setTimeout("s.regenerate()",2000);
+		setTimeout("s.regenerateHealth()",1000);
+	}
+	
+	regenerateEndurance(){
+		if(this.endurance < this.maxendurance){
+			this.endurance += Math.floor(1+this.strength/10);
+			if(this.endurance > this.maxendurance){
+				this.endurance = this.maxendurance;
+			}
+			this.showProperty('endurance');
+		}
+		setTimeout("s.regenerateEndurance()",1000);
+	}
+	
+	regenerateMana(){
+		if(this.mana < this.maxmana){
+			this.mana += Math.floor(1+this.wisdom/10);
+			if(this.mana > this.maxmana){
+				this.mana = this.maxmana;
+			}
+			this.showProperty('mana');
+		}
+		setTimeout("s.regenerateMana()",1000);
+	}
+	
+	regenerateMind(){
+		if(this.mind < this.maxmind){
+			this.mind += Math.floor(1+this.spirit/10);
+			if(this.mind > this.maxmind){
+				this.mind = this.maxmind;
+			}
+			this.showProperty('mind');
+		}
+		setTimeout("s.regenerateMind()",1000);
 	}
 	
 	/*Retourne -1 si impossible, 0 si manqué, 1 si touché, 2 si mort*/
@@ -156,11 +192,19 @@ class Save{
 		return 0;
 	}
 	
+	crit(){
+		//luck > 285 => crit 100% (ça ne doit jamais arriver)
+		return Math.random() * 300.0 < 15+this.luck;
+	}
+	
 	
 	init(){
 		console.log('Initialize');
 		this.showProperties();
-		setTimeout(this.regenerate,2000);
+		setTimeout(this.regenerateHealth,2000);
+		setTimeout(this.regenerateEndurance,2000);
+		setTimeout(this.regenerateMana,2000);
+		setTimeout(this.regenerateMind,2000);
 		console.log('End initialize');
 	}
 }

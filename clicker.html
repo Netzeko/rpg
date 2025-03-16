@@ -1,6 +1,27 @@
 <script src="toolbox.js"></script>
 <script src="Save.js"></script>
 <script src="Monster.js"></script>
+<style>
+#character{
+	float:left;
+	padding : 10px;
+}
+#attributes{
+	float:left;
+	padding : 10px;
+
+}
+.clearFloat{
+	clear:both;
+}
+#health,#maxhealth{
+	coolor:red;
+}
+
+.divmonster{
+	float:left;
+}
+</style>
 
 <script>
 	
@@ -13,56 +34,90 @@
 		m = new Monster(0);
 		m.showProperties();
 		show('monster0');
+		
 	}
 	
-	function attackTarget(){
-		var result = s.attackTarget(m);
+	function attackTarget(monster){
+		var result = s.attackTarget(monster);
 		if(result == 2){
-			hide('monster0');
+			document.getElementById('showmonster').removeChild(document.getElementById('monster'+monster.id));
+			ennemies[monster.id] = null;
+			currentEnnemies--;
 		}
 	}
 	
 	function upgrade(attr){
 		s.upgrade(attr);
 	}
+	
+	var ennemies = [];
+	var idnext = 1;
+	var currentEnnemies = 0;
+	function addEnnemy(){
+		if(currentEnnemies < 3){
+			var divE = document.createElement('div');
+			divE.id = 'monster'+idnext;
+			divE.className = 'divmonster';
+			divE.innerHTML = 
+			'<img src="13.jpg" alt="Ennemy" height="150" width="150" id="imgennemy'+idnext+'"><br/>'+
+			'ennemy : <span id="monster'+idnext+'name"></span><br/>'+
+			'health : <span id="monster'+idnext+'health"></span>/<span id="monster'+idnext+'maxhealth"></span><br/>'+
+			'<input type="button" value="attack" onclick="attackTarget(ennemies['+idnext+'])"/>';
+			document.getElementById('showmonster').appendChild(divE);
+			ennemies[idnext] = new Monster(idnext);
+			ennemies[idnext].showProperties();
+			idnext ++;
+			currentEnnemies++;
+		}
+	}
 	//setCookie('test','01');
 	console.log('save='+getCookie('save'));
 </script>
 <div id="showmonster">
-	<input type="button" value="Summon monster" onclick="summon()"/>
+	<input type="button" value="Summon monster" onclick="addEnnemy()"/><hr/>
 
 </div>
+<!--
+<div id="monsterpanel">
+	<div id="monster0" style="display:none;">
+		<img src="13.jpg" alt="Ennemy" height="150" width="150" id="imgennemy0"><br/>
+		ennemy : <span id="monster0name"></span><br/>
+		health : <span id="monster0health"></span>/<span id="monster0maxhealth"></span><br/>
 
-<div id="monster0" style="display:none;">
-	ennemy : <span id="monster0name"></span><br/>
-	health : <span id="monster0health"></span>/<span id="monster0maxhealth"></span><br/>
-
-	<input type="button" value="attack" onclick="attackTarget(m)"/>
+		<input type="button" value="attack" onclick="attackTarget(m)"/>
+	</div>
 </div>
-<hr/>
+-->
+<hr class="clearFloat"/>
+<div id="character">
+	name : <span id="playername"></span><br/>
+	level : <span id="level"></span><br/>
+	gold : <span id="gold"></span><br/>
+	health : <span id="health"></span>/<span id="maxhealth"></span><br/>
+	endurance : <span id="endurance"></span>/<span id="maxendurance"></span><br/>
+	mana : <span id="mana"></span>/<span id="maxmana"></span><br/>
+	mind : <span id="mind"></span>/<span id="maxmind"></span><br/>
+	exp : <span id="exp"></span><br/>
+</div>
+<div id="attributes">
+available points : <span id="points"></span><br/>
+	strength : <span id="strength"></span>
+	<input type="button" value="+" onclick="upgrade('strength')"/><br/>
+	constitution : <span id="constitution"></span>
+	<input type="button" value="+" onclick="upgrade('constitution')"/><br/>
+	dexterity : <span id="dexterity"></span>
+	<input type="button" value="+" onclick="upgrade('dexterity')"/><br/>
+	perception : <span id="perception"></span>
+	<input type="button" value="+" onclick="upgrade('perception')"/><br/>
+	spirit : <span id="spirit"></span>
+	<input type="button" value="+" onclick="upgrade('spirit')"/><br/>
+	wisdom : <span id="wisdom"></span>
+	<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
+	luck : <span id="luck"></span>
+	<input type="button" value="+" onclick="upgrade('luck')"/><br/>
+</div>
 
-name : <span id="playername"></span><br/>
-level : <span id="level"></span> | available points : <span id="points"></span><br/>
-health : <span id="health"></span>/<span id="maxhealth"></span><br/>
-endurance : <span id="endurance"></span>/<span id="maxendurance"></span><br/>
-mana : <span id="mana"></span>/<span id="maxmana"></span><br/>
-mind : <span id="mind"></span>/<span id="maxmind"></span><br/>
-exp : <span id="exp"></span><br/>
-strength : <span id="strength"></span>
-<input type="button" value="+" onclick="upgrade('strength')"/><br/>
-constitution : <span id="constitution"></span>
-<input type="button" value="+" onclick="upgrade('constitution')"/><br/>
-dexterity : <span id="dexterity"></span>
-<input type="button" value="+" onclick="upgrade('dexterity')"/><br/>
-perception : <span id="perception"></span>
-<input type="button" value="+" onclick="upgrade('perception')"/><br/>
-spirit : <span id="spirit"></span>
-<input type="button" value="+" onclick="upgrade('spirit')"/><br/>
-wisdom : <span id="wisdom"></span>
-<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
-luck : <span id="luck"></span>
-<input type="button" value="+" onclick="upgrade('luck')"/><br/>
-<hr/>
+<hr class="clearFloat"/>
 	<input type="button" value="save" onclick="s.saveInCookie()"/>
 
 

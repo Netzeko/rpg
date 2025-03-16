@@ -17,15 +17,13 @@ class Monster{
 	
 	calculateStats(){
 		//console.log('calcStats');
-		this.maxhealth = 10+this.constitution*5;
+		this.maxhealth = 10+this.constitution*8;
 		this.health = this.maxhealth;
-				//console.log('this.health ='+this.health );
-
-		this.maxendurance = 10+this.strength*5;
+		this.maxendurance = 10+this.strength*8;
 		this.endurance = this.maxendurance;
-		this.maxmana = 10+this.wisdom*5;
+		this.maxmana = 10+this.wisdom*8;
 		this.mana = this.maxmana;
-		this.maxmind = 10+this.spirit*5;
+		this.maxmind = 10+this.spirit*8;
 		this.mind = this.maxmind;
 		
 		this.attack = (this.strength / 5)*10;//changer par l'attaque de l'arme
@@ -39,10 +37,10 @@ class Monster{
 		if(this.health <= 0) return -1;
 		
 		var damages = chara.attack - this.defense;
-		var hit = (chara.precision / this.dodge) *0.5;
+		var hit = (chara.precision / this.dodge) *0.4;
 		
 		var res = 1.0-Math.random();
-		if(res <= hit){
+		if(res > hit){
 			console.log('miss!');
 			return 0;
 		}
