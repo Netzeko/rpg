@@ -86,6 +86,7 @@ function addCharacter(c,slot){
 		
 		partyCards[slot] = c;
 		members[c.id] = c;
+		currentMembers++;
 		c.regenerate();
 		
 		var divStatC = document.createElement('div');
@@ -171,5 +172,6 @@ function addEnnemy(){
 		//newm.attackChar();
 		idnext ++;
 		currentEnnemies++;
+		newm.doAction();
 	}
 }

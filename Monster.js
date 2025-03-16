@@ -1,13 +1,13 @@
 class Monster{
 	constructor(id) {
-		this.strength = 5;
-		this.constitution = 5;
-		this.dexterity = 5;
+		this.strength = 15;
+		this.constitution = 7;
+		this.dexterity = 10;
 		this.perception = 4;
 		this.spirit = 5;
 		this.wisdom = 5;
 		this.luck = 5;
-		this.speed = 5;
+		this.speed = 8;
 		
 		this.isMonster = 1;
 		this.exp = 200;
@@ -70,6 +70,7 @@ class Monster{
 		return -1;
 	}
 	
+	/*
 	attackChar(){
 		if(this.health <=0){
 			return;
@@ -77,6 +78,19 @@ class Monster{
 		s.computeAttack(this,s);
 		console.log('attack '+this.id);
 		this.nextAttack = setTimeout('attackChar('+this.id+')',this.timeAttack);
+	}
+	*/
+	
+	doAction(){
+		
+		var c = randomCharacter();
+		if(c){
+			console.log(this.name+this.id+' attack '+c.name);
+			s.computeAttack(this,c);
+		}else{
+			console.log(this.name+' : i\'m hungry !');
+		}
+		setTimeout('doAction("m",'+this.id+')',this.timeAttack);
 	}
 	
 	computeDeath(attacker){

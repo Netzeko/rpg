@@ -7,6 +7,7 @@ var ennemies = [];
 var members = [];
 var idnext = 1;
 var currentEnnemies = 0;
+var currentMembers = 0;
 var selectedChar = null;
 var targetedChar = null;
 var ennemyCards = [null,null,null,null,null,null,null];
@@ -47,6 +48,19 @@ function randomMonster(){
 	return null;
 }
 
+function randomCharacter(){
+	var res = Math.ceil( Math.random() * currentMembers);
+	for(var i = 1;i<members.length;i++){
+		if(members[i] != null){
+			res --;
+			if(!res){
+				return members[i];
+			}
+		}
+	}
+	return null;
+}
+
 function testrandm(){
 	var results = [];
 	for(var j=0;j<10000;j++){
@@ -65,8 +79,6 @@ function testrandm(){
 	}
 	console.log(results);
 }
-
-
 
 function selectChar(id){
 	selectedChar = members[id];
@@ -92,9 +104,6 @@ function target(side,id,slot){
 
 }
 
-
-
-
 function getCard(monsterId){
 	for(var i =1;i<ennemyCards.length;i++){
 		if(ennemyCards[i] != null
@@ -109,7 +118,7 @@ function removeEnnemy(id){
 	ennemyCards[getCard(id)] = null;
 	currentEnnemies--;
 	//Si la cible est morte, on en prend une autre au hasard
-	if(targetedChar.id == id){
+	if(targetedChar && targetedChar.id == id){
 		var m = randomMonster();
 		if(m){
 			target('ennemy',m.id,m.slot)
@@ -123,11 +132,15 @@ function showDead(id){
 //A modifier
 	document.getElementById('charStats'+id).className += ' dead';
 	//document.getElementById('character').style='background-color:#900000;';
+	members[id] = null;
+	currentMembers--;
+	/*
 	for(var i=1;i<ennemies.length;i++){
 		if(ennemies[i] != null){
 			removeEnnemy(i);
 		}
 	}
+	*/
 }
 
 function addSkill(sk){
@@ -174,8 +187,6 @@ function learnSkill(skillname){
 	}
 }
 
-
-
 function regenerate(){
 	for(var i =1;i<members.length;i++){
 		if(members[i] != null ){
@@ -185,5 +196,22 @@ function regenerate(){
 	setTimeout("regenerate()",1000);
 }
 
+function addPartyMember(){
+	var next = nextFreeCard(partyCards);
+	if(next){
+		s.addPartyMember(next);
+	}
+}
 
+function doAction(type,id){
+	var user = null;
+	if(type == 'm'){
+		user = ennemies[id];
+	}else if(type == 'c'){
+		user = members[id];
+	}
+	if(user){
+		user.doAction();
+	}
+}
 

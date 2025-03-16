@@ -2,10 +2,10 @@ class Save{
 	constructor(savename) {
 		this._nextCharId = 1;
 		this._partyMembers = [null];
-		this.listPartyMembers = 'zero'
+		this.listPartyMembers = 'zero,'
 		this.savename = savename;
 		this.gold = 0;
-
+		this._numberMember = 0;
 	}
 	
 	
@@ -14,19 +14,20 @@ class Save{
 		var data = getCookie('save'+this.savename);
 		if(data.length == 0){
 			console.log('...no data');
-			return false;
-		}
-		var dataArray = data.split('/');
-		console.log('loading '+this.savename+', '+dataArray.length+' properties');
-		for(var i = 0;i<dataArray.length;i++){
-			var variable = dataArray[i].split(':');
-			if(variable[0].length ==0) continue;
 			
-			//console.log('prop '+variable[0]+'='+variable[1]+' ('+variable[2]+')');
-			if(variable[2].localeCompare('number') == 0){
-				this[variable[0]] = Number(variable[1]);
-			}else if(variable[2].localeCompare('string') == 0){
-				this[variable[0]] = variable[1];
+		}else{
+			var dataArray = data.split('/');
+			console.log('loading '+this.savename+', '+dataArray.length+' properties');
+			for(var i = 0;i<dataArray.length;i++){
+				var variable = dataArray[i].split(':');
+				if(variable[0].length ==0) continue;
+				
+				//console.log('prop '+variable[0]+'='+variable[1]+' ('+variable[2]+')');
+				if(variable[2].localeCompare('number') == 0){
+					this[variable[0]] = Number(variable[1]);
+				}else if(variable[2].localeCompare('string') == 0){
+					this[variable[0]] = variable[1];
+				}
 			}
 		}
 		console.log('Loading party...');
@@ -36,14 +37,29 @@ class Save{
 			if(listNames[i].length <= 0) continue;
 			var c = new Character(listNames[i],this._nextCharId ++);
 			this._partyMembers[this._partyMembers.length] = c;
+			this._numberMember++;
 			c.loadFromCookie(this.savename);
-			addCharacter(c,slot++)
+			addCharacter(c,slot++);
 		}
 		console.log('Loading done');
 
 	}
-
 	
+	//temporaire, le temps de mettre en place un input text
+	_getMemberName(slot){
+		var arr = ['Zero','Kenshi','Leeroy','Rambo','Elminster','Alphonse','Tony'];
+		return arr[slot];
+	}
+
+	addPartyMember(slot){
+		
+		var c = new Character(this._getMemberName(slot),this._nextCharId ++);
+		this._partyMembers[this._partyMembers.length] = c;
+		this._numberMember++;
+		addCharacter(c,slot);
+		this.listPartyMembers += ''+c.name+',';
+		c.doAction();
+	}
 	
 	saveInCookie(){
 		console.log('saving '+this.savename);
@@ -77,7 +93,7 @@ class Save{
 				return 0;
 			}
 
-			console.log('hit!');
+			console.log(defenser.name+' hit! ('+damages+' damages)');
 			defenser.modStat('health',- damages);
 
 			showBars(defenser);
@@ -116,8 +132,16 @@ class Save{
 	init(){
 		console.log('Initialize');
 		this.loadFromCookie();
-
+		this.startAutoAttack();
 		console.log('End initialize');
+	}
+	
+	startAutoAttack(){
+		for(var i=1;i<this._partyMembers.length;i++){
+			if(this._partyMembers[i]){
+				this._partyMembers[i].doAction();
+			}
+		}
 	}
 }
 

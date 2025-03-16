@@ -197,7 +197,6 @@ class Character{
 		return -1;
 	}
 	
-	
 	computeDeath(){
 		this.dead = 1;
 		this.regeneration = 0;
@@ -243,7 +242,6 @@ class Character{
 		return Math.random() * 300.0 < 15+this.luck;
 	}
 	
-	
 	learnSkill(skill){
 		if(this._skills.indexOf(skill) != -1){
 			console.log('skill already learned');
@@ -271,6 +269,21 @@ class Character{
 			this._skills[listNames[i]] = skills[listNames[i]];
 		}
 	}
+	
+	doAction(){
+		var m = randomMonster();
+		if(m){
+			console.log(this.name+' attack '+m.name);
+
+			s.computeAttack(this,m);
+		}else{
+			console.log(this.name+' : i don\'t know...');
+		}
+		setTimeout('doAction("c",'+this.id+')',this.timeAttack);
+	}
+	
+	
+	
 	
 	init(){
 		console.log('Initialize');
