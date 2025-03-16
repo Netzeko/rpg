@@ -20,6 +20,7 @@ class Save{
 		this.totalexp = 0;
 		this.points = 0;
 		this.playername = 'Zero';
+		this.dead = 0;
 	}
 	
 	calculateStats(refresh = false){
@@ -93,7 +94,7 @@ class Save{
 	}
 	
 	regenerateHealth(){
-		if(this.health < this.maxhealth){
+		if(this.health < this.maxhealth && !this.dead){
 			this.health += Math.floor(1+this.constitution/10);
 			if(this.health > this.maxhealth){
 				this.health = this.maxhealth;
@@ -104,7 +105,7 @@ class Save{
 	}
 	
 	regenerateEndurance(){
-		if(this.endurance < this.maxendurance){
+		if(this.endurance < this.maxendurance && !this.dead){
 			this.endurance += Math.floor(1+this.strength/10);
 			if(this.endurance > this.maxendurance){
 				this.endurance = this.maxendurance;
@@ -115,7 +116,7 @@ class Save{
 	}
 	
 	regenerateMana(){
-		if(this.mana < this.maxmana){
+		if(this.mana < this.maxmana && !this.dead){
 			this.mana += Math.floor(1+this.wisdom/10);
 			if(this.mana > this.maxmana){
 				this.mana = this.maxmana;
@@ -126,7 +127,7 @@ class Save{
 	}
 	
 	regenerateMind(){
-		if(this.mind < this.maxmind){
+		if(this.mind < this.maxmind && !this.dead){
 			this.mind += Math.floor(1+this.spirit/10);
 			if(this.mind > this.maxmind){
 				this.mind = this.maxmind;
@@ -137,27 +138,37 @@ class Save{
 	}
 	
 	/*Retourne -1 si impossible, 0 si manqué, 1 si touché, 2 si mort*/
-	attackTarget(monster){
-		if(this.health > 0){
-			var result = monster.attacked(this);
-			//console.log(xp);return;
-			if(result < 2){
-				return result;
+	computeAttack(attacker,defenser){
+		if(attacker.health > 0 && defenser.health > 0){
+			var damages = attacker.attack - defenser.defense;
+			var hit = (attacker.precision / defenser.dodge) *0.4;
+			
+			var res = 1.0-Math.random();
+			if(res > hit){
+				console.log('miss!');
+				return 0;
 			}
+
+			console.log('hit!');
+			defenser.health -= damages;
+			defenser.showProperty('health');
 			
-			this.exp += monster.exp;
-			this.totalexp += monster.exp;
-			this.showProperty('exp');
-			this.levelUp();
-			return 2;
+			if(defenser.health <= 0){
+				console.log('dead');
+				defenser.computeDeath(attacker);
+				return 2;
+			}
+			return 1;
 			
-			/*
-			this.health -= 1;
-			this.exp += 1;
-			this.showProperty('health');
-			this.showProperty('exp');*/
 		}
 		return -1;
+	}
+	
+	
+	computeDeath(){
+		this.dead = 1;
+		showDead();
+		console.log('You are dead');
 	}
 	
 	upgrade(attr){
