@@ -1,6 +1,6 @@
 class Monster extends Creature{
-	constructor(id) {
-		super('sampleMonster',id);
+	constructor(name,id,game) {
+		super(name,id,game);
 		
 		this.isMonster = 1;
 		this.exp = 70;
@@ -9,8 +9,6 @@ class Monster extends Creature{
 		this.calculateStats();
 	}
 	
-	
-	
 	upToPartyLevel(){
 		let plevel = Math.max(s.getPartyLevel(),1);
 		let p = 10*(plevel-1);
@@ -18,7 +16,7 @@ class Monster extends Creature{
 		this.exp = 50+8*plevel;
 		let ok = 1;
 		while(ok){
-			let r = Math.floor(Math.random()*8);
+			let r = rand(0,7);
 			if(this[this.getAttribute(r)] <= p){
 				//console.log('up='+this.getAttribute(r));
 
@@ -43,28 +41,26 @@ class Monster extends Creature{
 		
 	}
 	
-	
-	
 	lowestAttribute(){
 		//maybe ?
 	}
 	
 	showProperty(prop){			
-		var htmlout = document.getElementById('monster'+this._id+prop);
+		let htmlout = document.getElementById('monster'+this._id+prop);
 		if(htmlout){
 			htmlout.innerHTML = this[prop];
 		}
 	}
 	
 	showProperties(){
-		var keys = Object.keys(this);
-		for(var i = 0;i<keys.length;i++){
+		let keys = Object.keys(this);
+		for(let i = 0;i<keys.length;i++){
 			this.showProperty(keys[i]);
 		}
 	}
 	
 	modStat(stat,value){
-		var stats = ['health','endurance','mana','mind'];
+		let stats = ['health','endurance','mana','mind'];
 		if(stats.indexOf(stat) != -1){
 			this[stat] += value;
 			if(this[stat] > this['max'+stat]){
@@ -82,22 +78,11 @@ class Monster extends Creature{
 		return -1;
 	}
 	
-	/*
-	attackChar(){
-		if(this.health <=0){
-			return;
-		}
-		s.computeAttack(this,s);
-		console.log('attack '+this.id);
-		this.nextAttack = setTimeout('attackChar('+this.id+')',this.timeAttack);
-	}
-	*/
-	
 	doAction(){
 		
-		var c = randomCharacter();
+		let c = randomCharacter();
 		if(c){
-			console.log(this.name+this._id+' attack '+c.name);
+			//console.log(this.name+this._id+' attack '+c.name);
 			s.computeAttack(this,c);
 		}else{
 			console.log(this.name+' : i\'m hungry !');
@@ -106,17 +91,52 @@ class Monster extends Creature{
 	}
 	
 	computeDeath(attacker){
+		super.computeDeath(attacker);
 		//Todo:gerer si un monstre en tue un autre
-		//donner l'exp au groupe, pas au perso
 		s.giveExpToAll(this.exp);
 		
-		/*attacker.exp += this.exp;
-		attacker.totalexp += this.exp;
-		attacker.levelUp();
-		attacker.showProperty('exp');
-		*/
 		clearTimeout(this.nextAttack);
-		removeEnnemy(this._id);
+		removeEnnemy(this._id,this.slot);
 		return 2;
 	}
 }
+
+
+class Nightmare extends Monster{
+	constructor(id,game,cat) {
+		super('Nightmare',id,game);
+		if(cat == 4){
+			this.name += ' Champion';
+			this.sprite = 'nightmarechampion';
+		}else if(cat >= 2){
+			this.name += ' Elite';
+			this.sprite = 'nightmareelite';
+		}else{
+			this.sprite = 'nightmare';
+		}
+		
+		this.cat = cat;
+		this.exp = 50 * cat;
+
+		this.strength = 4;
+		this.constitution = 2+2*cat;
+		this.dexterity = 5+1*cat;
+		this.perception = 5+2*cat;
+		this.spirit = 5;
+		this.wisdom = 5;
+		this.luck = 5;
+		this.speed = 5+3*cat;
+		
+		this.weaponAttack = 5+2*cat;
+		this.armor = 2*cat;
+		
+		this.calculateStats();
+	}
+	
+	static staticClassName(){
+		return 'Nightmare';
+	}
+	
+}
+
+registerClass(Nightmare);

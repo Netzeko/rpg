@@ -1,0 +1,12 @@
+Ajouter du contenu :
+
+Ajouter un nouveau marchand au village : 
+	- Instancier un nouvel objet de classe Merchant avec pour paramètre son nom-identifiant (doit être unique pour chaque maison du village) et un pointeur vers le village
+	- Ajouter des objets qu'il pourra vendre via addAvailableItems (paramètre tableau de nom d'objets)
+	- Ajouter un peu d'argent au marchand avec addCash
+	- Ajouter ce marchand au village : _village.addHouse(_marchand,nom-identifiant,nom à afficher sur le bouton)
+	- Pour les images : textures/nom-identifiant.png pour le sprite du pnj qui tient l'échoppe (1024*1024) et bg/nom-identifiant.png pour l'image de fond (600*400)
+
+	Et voila :)
+
+

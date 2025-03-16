@@ -4,11 +4,22 @@
 <script src="toolbox.js"></script>
 <script src="view.js"></script>
 <script src="Creature.js"></script>
+<script src="Language.js"></script>
 <script src="Character.js"></script>
-<script src="Save.js"></script>
+<script src="Game.js"></script>
 <script src="Monster.js"></script>
 <script src="Skill.js"></script>
 <script src="Items.js"></script>
+<script src="Squares.js"></script>
+<script src="Level.js"></script>
+<script src="Village.js"></script>
+<script src="three.min.js"></script>
+<script src="DungeonScene.js"></script>
+<script src="SpawnArea.js"></script>
+<script src="Entity.js"></script>
+<script src="MonsterGroup.js"></script>
+<script src="Merchant.js"></script>
+<script src="Chest.js"></script>
 <script src="main.js"></script>
 <style>
 #character{
@@ -37,8 +48,8 @@
 </script>
 
 <div id="leftPanel">
-	<div id="mainWindow">
-		<div id="ennemiesWindow">
+	<div id="mainWindow" class="mainPanel">
+		<div id="ennemiesWindow" style="display:none" class="mainPanel">
 			<div id="ennemy5card" class="ennemyCard"></div>
 			<div id="ennemy4card" class="ennemyCard"></div>
 			<div id="ennemy6card" class="ennemyCard"></div>
@@ -46,15 +57,23 @@
 			<div id="ennemy1card" class="ennemyCard"></div>
 			<div id="ennemy3card" class="ennemyCard"></div>
 		</div>
-		<div id="travelWindow" style="display:none">
+		<div id="travelWindow"  class="mainPanel">
+			<div id="dungeonView" ></div>
+			<div id="viewInfo">aaa</div>
 		</div>
+		<div id="villageWindow" style="display:none" class="mainPanel"></div>
+		<div id="overWindow" style="display:none" class="mainPanel"></div>
 	</div>
 	<div id="middleMenu">
-		<input type="button" value="Summon monster" onclick="addEnnemy()"/>
+		<!--<input type="button" value="Summon monster" onclick="addEnnemy()"/>-->
 		<input type="button" value="attack" onclick="attackTarget()"/>
 		<input type="button" value="add member" onclick="addPartyMember()"/>
 		<input type="button" value="add potion" onclick="addPotion()"/>
+		<input type="button" value="add armor set" onclick="addArmor()"/>
 		<input type="button" value="resurrect member" onclick="resurrectMember()"/>
+		<input type="button" value="switch invisibility" onclick="g.invisible = 1-g.invisible;"/>
+		<!--<input type="button" value="travel window" onclick="showMainWindow('travelWindow')"/>
+		<input type="button" value="ennemies window" onclick="showMainWindow('ennemiesWindow')"/>-->
 	</div>
 	<div id="partyWindow">
 			<div id="party2card" class="partyCard"></div>
@@ -68,24 +87,47 @@
 <div id="rightPanel">
 	<div id="lateralWindow" class="lateralSubWindow">
 		<div id="targetWindow" class="lateralSubWindow"></div>
-		<div id="mapWindow" class="lateralSubWindow" style="display:none"></div>
-		<div id="inventoryWindow" class="lateralSubWindow" style="display:none" ondrop="dropItem(event)" ondragover="allowDrop(event)"></div>
+		<div id="mapWindow" class="lateralSubWindow" style="display:none">
+			<!--<div class="mapView" id="wrapMap1">
+				<div class="mapView" id="map1">
+				</div>
+			</div>-->
+		</div>
+		<div id="inventoryWindow" class="lateralSubWindow" style="display:none" ondrop="dropItem(event)" ondragover="allowDrop(event)">
+		<h4 class="itemCategory">Usable items</h4>
+		<div id="usableItems" class="itemContainer"></div>
+		<hr class="clearFloat"/>
+		<h4 class="itemCategory">Equipment</h4>
+		<div id="equipItems" class="itemContainer"></div>
+		<hr class="clearFloat"/>
+		<h4 class="itemCategory">Other</h4>
+		<div id="otherItems" class="itemContainer"></div>
+		<hr class="clearFloat"/>
+		<div id="trash" ondrop="dropItem(event)" ondragover="allowDrop(event)"></div>
+		&nbsp;Gold : <span id="gold" ></span>
+		
+		</div>
 	</div>
 	<div id="rightMenu">
 		<input type="button" value="inventory" onclick="showLateralWindow('inventoryWindow')"/>
+		<input type="button" value="map" onclick="showLateralWindow('mapWindow')"/>
 	</div>
 	<div id="characterWindow">
 		<!-- Sera rempli dynamiquement -->
 	</div>
 </div>
-
+<div id="iteminfo" style="display:none"></div>
 
 <hr class="clearFloat"/>
-	<input type="button" value="save" onclick="s.saveInCookie()"/>
+	<input type="button" value="save" onclick="save()"/>
+	<input type="button" value="clear save" onclick="localStorage.clear()"/>
+	<input type="button" value="animationOff" onclick="renderanimation = 0;"/>
+	<input type="button" value="animationOn" onclick="renderanimation = 1;"/>
 
 
 
 <script>
+	
 	init();
 	
 </script>
