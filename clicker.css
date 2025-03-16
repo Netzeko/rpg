@@ -1,0 +1,74 @@
+
+#leftPanel{
+	width : 600px;
+	height : 850px;
+	background-color:#208020;
+	float:left;
+}
+#mainWindow{
+	width : 600px;
+	height : 400px;
+}
+#ennemiesWindow{
+	width : 600px;
+	height : 400px;
+	background-color:#802020;
+}
+.ennemyCard{
+	width : 198px;
+	height : 198px;
+	border:1px solid black;
+	float:left;
+}
+#travelWindow{
+	width : 600px;
+	height : 400px;
+	background-color:#808020;
+
+}
+#middleMenu{
+	width : 600px;
+	height : 50px;
+	background-color:#808080;
+}
+#partyWindow{
+	width : 600px;
+	height : 400px;
+	background-color:#202080;
+}
+.partyCard{
+	width : 198px;
+	height : 198px;
+	border:1px solid black;
+	float:left;
+}
+#rightPanel{
+	width : 400px;
+	height : 850px;
+	background-color:#208020;
+	float:left;
+}
+#lateralWindow{
+	width : 400px;
+	height : 400px;
+}
+#mapWindow{
+	width : 400px;
+	height : 400px;
+	background-color:#FF4500;
+}
+#targetWindow{
+	width : 400px;
+	height : 400px;
+	background-color:#802080;
+}
+#rightMenu{
+	width : 400px;
+	height : 50px;
+	background-color:#404040;
+}
+#characterWindow{
+	width : 400px;
+	height : 400px;
+	background-color:#00FF7F;
+}

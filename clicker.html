@@ -1,3 +1,6 @@
+<head>
+<link rel="stylesheet" type="text/css" href="clicker.css">
+</head>
 <script src="toolbox.js"></script>
 <script src="Save.js"></script>
 <script src="Monster.js"></script>
@@ -51,8 +54,19 @@
 	var ennemies = [];
 	var idnext = 1;
 	var currentEnnemies = 0;
+	var ennemyCards = [null,null,null,null,null,null,null];
+	var partyCards = [null,null,null,null,null,null,null];
+	
+	function nextFreeCard(cards){
+		for(var i =1;i<cards.length;i++){
+			if(cards[i] == null) return i;
+		}
+		return 0;
+	}
+	
 	function addEnnemy(){
-		if(currentEnnemies < 3 && !s.dead){
+		var free = nextFreeCard(ennemyCards);
+		if(free && !s.dead){
 			var divE = document.createElement('div');
 			divE.id = 'monster'+idnext;
 			divE.className = 'divmonster';
@@ -61,18 +75,31 @@
 			'ennemy : <span id="monster'+idnext+'name"></span><br/>'+
 			'health : <span id="monster'+idnext+'health"></span>/<span id="monster'+idnext+'maxhealth"></span><br/>'+
 			'<input type="button" value="attack" onclick="attackTarget(ennemies['+idnext+'])"/>';
-			document.getElementById('showmonster').appendChild(divE);
-			ennemies[idnext] = new Monster(idnext);
-			ennemies[idnext].showProperties();
-			ennemies[idnext].attackChar();
+			
+			
+			document.getElementById('ennemy'+free+'card').appendChild(divE);
+			var newm = new Monster(idnext);
+			ennemyCards[free] = newm;
+			ennemies[idnext] = newm;
+			newm.showProperties();
+			//newm.attackChar();
 			idnext ++;
 			currentEnnemies++;
 		}
 	}
 	
+	function getCard(monsterId){
+		for(var i =1;i<ennemyCards.length;i++){
+			if(ennemyCards[i] != null
+			&& ennemyCards[i].id == monsterId) return i;
+		}
+		return 0;
+	}
+	
 	function removeEnnemy(id){
-		document.getElementById('showmonster').removeChild(document.getElementById('monster'+id));
+		document.getElementById('ennemy'+getCard(id)+'card').removeChild(document.getElementById('monster'+id));
 		ennemies[id] = null;
+		ennemyCards[getCard(id)] = null;
 		currentEnnemies--;
 	}
 	
@@ -93,49 +120,72 @@
 	//setCookie('test','01');
 	console.log('save='+getCookie('save'));
 </script>
-<div id="showmonster">
-	<input type="button" value="Summon monster" onclick="addEnnemy()"/><hr/>
 
-</div>
-<!--
-<div id="monsterpanel">
-	<div id="monster0" style="display:none;">
-		<img src="13.jpg" alt="Ennemy" height="150" width="150" id="imgennemy0"><br/>
-		ennemy : <span id="monster0name"></span><br/>
-		health : <span id="monster0health"></span>/<span id="monster0maxhealth"></span><br/>
-
-		<input type="button" value="attack" onclick="attackTarget(m)"/>
+<div id="leftPanel">
+	<div id="mainWindow">
+		<div id="ennemiesWindow">
+			<div id="ennemy5card" class="ennemyCard"></div>
+			<div id="ennemy4card" class="ennemyCard"></div>
+			<div id="ennemy6card" class="ennemyCard"></div>
+			<div id="ennemy2card" class="ennemyCard"></div>
+			<div id="ennemy1card" class="ennemyCard"></div>
+			<div id="ennemy3card" class="ennemyCard"></div>
+		</div>
+		<div id="travelWindow" style="display:none">
+		</div>
+	</div>
+	<div id="middleMenu">
+		<input type="button" value="Summon monster" onclick="addEnnemy()"/>
+	</div>
+	<div id="partyWindow">
+			<div id="party2card" class="partyCard"></div>
+			<div id="party1card" class="partyCard"></div>
+			<div id="party3card" class="partyCard"></div>
+			<div id="party5card" class="partyCard"></div>
+			<div id="party4card" class="partyCard"></div>
+			<div id="party6card" class="partyCard"></div>
 	</div>
 </div>
--->
-<hr class="clearFloat"/>
-<div id="character">
-	name : <span id="playername"></span><br/>
-	level : <span id="level"></span><br/>
-	gold : <span id="gold"></span><br/>
-	health : <span id="health"></span>/<span id="maxhealth"></span><br/>
-	endurance : <span id="endurance"></span>/<span id="maxendurance"></span><br/>
-	mana : <span id="mana"></span>/<span id="maxmana"></span><br/>
-	mind : <span id="mind"></span>/<span id="maxmind"></span><br/>
-	exp : <span id="exp"></span><br/>
+<div id="rightPanel">
+	<div id="lateralWindow">
+		<div id="targetWindow">
+		</div>
+		<div id="mapWindow" style="display:none">
+		</div>
+	</div>
+	<div id="rightMenu"></div>
+	<div id="characterWindow">
+		<div id="character">
+			name : <span id="playername"></span><br/>
+			level : <span id="level"></span><br/>
+			gold : <span id="gold"></span><br/>
+			health : <span id="health"></span>/<span id="maxhealth"></span><br/>
+			endurance : <span id="endurance"></span>/<span id="maxendurance"></span><br/>
+			mana : <span id="mana"></span>/<span id="maxmana"></span><br/>
+			mind : <span id="mind"></span>/<span id="maxmind"></span><br/>
+			exp : <span id="exp"></span><br/>
+		</div>
+		<div id="attributes">
+		available points : <span id="points"></span><br/>
+			strength : <span id="strength"></span>
+			<input type="button" value="+" onclick="upgrade('strength')"/><br/>
+			constitution : <span id="constitution"></span>
+			<input type="button" value="+" onclick="upgrade('constitution')"/><br/>
+			dexterity : <span id="dexterity"></span>
+			<input type="button" value="+" onclick="upgrade('dexterity')"/><br/>
+			perception : <span id="perception"></span>
+			<input type="button" value="+" onclick="upgrade('perception')"/><br/>
+			spirit : <span id="spirit"></span>
+			<input type="button" value="+" onclick="upgrade('spirit')"/><br/>
+			wisdom : <span id="wisdom"></span>
+			<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
+			luck : <span id="luck"></span>
+			<input type="button" value="+" onclick="upgrade('luck')"/><br/>
+		</div>
+
+	</div>
 </div>
-<div id="attributes">
-available points : <span id="points"></span><br/>
-	strength : <span id="strength"></span>
-	<input type="button" value="+" onclick="upgrade('strength')"/><br/>
-	constitution : <span id="constitution"></span>
-	<input type="button" value="+" onclick="upgrade('constitution')"/><br/>
-	dexterity : <span id="dexterity"></span>
-	<input type="button" value="+" onclick="upgrade('dexterity')"/><br/>
-	perception : <span id="perception"></span>
-	<input type="button" value="+" onclick="upgrade('perception')"/><br/>
-	spirit : <span id="spirit"></span>
-	<input type="button" value="+" onclick="upgrade('spirit')"/><br/>
-	wisdom : <span id="wisdom"></span>
-	<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
-	luck : <span id="luck"></span>
-	<input type="button" value="+" onclick="upgrade('luck')"/><br/>
-</div>
+
 
 <hr class="clearFloat"/>
 	<input type="button" value="save" onclick="s.saveInCookie()"/>
