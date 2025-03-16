@@ -98,7 +98,7 @@ class Level{
 	setSquare(sq){
 		this.allocate(sq.x,sq.y,sq.z);
 		this._mapData[sq.z][sq.x][sq.y] = sq;
-		if(sq.minz != sq.z){
+		if(sq.minz != undefined && sq.minz != sq.z){
 			//console.log(sq);
 			this.allocate(sq.x,sq.y,sq.minz);
 			this._mapData[sq.minz][sq.x][sq.y] = sq;
@@ -264,8 +264,9 @@ class Level{
 		let dirout = direction(movex,movey);
 		let dirin = opposite(direction(movex,movey));
 		let oldz = this.z;
-		let nextSquare = this.getSquare(this.x,this.y,this.z).getAdjacentSquare(dirout);
-		if(nextSquare && nextSquare.walkable){
+		let cursq = this.getCurrentSquare();
+		let nextSquare = cursq.getAdjacentSquare(dirout);
+		if(nextSquare && nextSquare.walkable && !cursq[dirout] && !nextSquare[dirin] ){
 			if(!this.getSquare(this.x,this.y,this.z).exit(dirout)){
 				console.log('unable to move there');
 				return 0;
@@ -274,6 +275,31 @@ class Level{
 			this.setPosition(this.x+movex,this.y+movey,this.z);
 			//this.getSquare(this.x,this.y)._entity = this._party;
 			nextSquare.enter(dirin);
+
+			if(oldz != this.z){
+				//On a changé de niveau
+				showMap(this);
+			}
+			//actualizeMap(this);
+			return 1;
+		}
+		return 0;
+	}	
+	
+	fall(){
+		console.log('falling...');
+		let oldz = this.z;
+		let cursq = this.getCurrentSquare();
+		let nextSquare = this.getSquare(cursq.x,cursq.y,cursq.z+1);
+		if(nextSquare && nextSquare.walkable ){
+			/*
+			if(!this.getSquare(this.x,this.y,this.z).exit(dirout)){
+				console.log('unable to move there');
+				return 0;
+			}*/
+			this.z++;
+			this.setPosition(this.x,this.y,this.z);
+			nextSquare.enter(this.dir);
 
 			if(oldz != this.z){
 				//On a changé de niveau
@@ -311,12 +337,15 @@ class Level{
 	}
 	
 	loadFromCookie(savename=''){
+		// console.log('startloading');
+		// console.log(this._mapData[undefined]);
 		let data = getCookie('save'+savename+'level'+this.name);
 		if(data.length == 0){
 			return false;
 		}
 		let dataArray = data.split('/');
-		console.log('loading '+this.name+', '+dataArray.length+' properties');
+		let spawnlist = [];
+		// console.log('loading '+this.name+', '+dataArray.length+' properties');
 		for(let i = 0;i<dataArray.length;i++){
 			
 			let variable = dataArray[i].split(':');
@@ -331,16 +360,23 @@ class Level{
 				if(variable[0].startsWith('square')){
 					let str = variable[0].substr(6);
 					let coord = str.split('_');
+					// console.log('before');
+					// console.log(this._mapData[undefined]);
+					// console.log(str);
+					// console.log(variable[1]);
 					let sq = new window[coord[1]](0,0,0,this);
 					sq.loadFromString(variable[1]);
+					// console.log(sq.x);
+					// console.log(sq.y);
+					// console.log(sq.z);
 					this.setSquare(sq);
+					// console.log(this._mapData[undefined]);
 					delete this[variable[0]];
 				}else if(variable[0].startsWith('spawn')){
 					//console.log('Loading spawn');
 					let str = variable[0].substr(5);
 					let sp = new SpawnArea(this,g._nextLevelId++);
 					sp._saveid = Number(str);
-					sp.loadFromCookie(savename);
 					this._spawnAreas.push(sp);
 					delete this[variable[0]];
 				}
@@ -356,6 +392,11 @@ class Level{
 			e._saveid = entity[0];
 			e.loadFromCookie(savename);
 			this._entities.push(e);
+		}
+		
+		//A faire à la fin, pour être sur que les cases soient chargées
+		for(let i=0;i<this._spawnAreas.length;i++){
+			this._spawnAreas[i].loadFromCookie(savename);
 		}
 	}
 	
@@ -443,7 +484,21 @@ class Level{
 			if( !cur.north && !cur.getAdjacentSquare('north') /* !this.getSquare(cur.x,cur.y+1,cur.z) && */ ){
 				cur.north = this.defaultWall;
 			}
-			
+			if(cur.stairs){
+				if( !cur.west && !cur.getAdjacentSquare('west',1) /* !this.getSquare(cur.x-1,cur.y,cur.z) && */ ){
+					cur.upwest = this.defaultWall;
+				}
+				if( !cur.east && !cur.getAdjacentSquare('east',1) /* !this.getSquare(cur.x+1,cur.y,cur.z) &&*/ ){
+					cur.upeast = this.defaultWall;
+				}
+				if( !cur.south && !cur.getAdjacentSquare('south',1) /* !this.getSquare(cur.x,cur.y-1,cur.z) && */){
+					cur.upsouth = this.defaultWall;
+				}
+				if( !cur.north && !cur.getAdjacentSquare('north',1) /* !this.getSquare(cur.x,cur.y+1,cur.z) && */ ){
+					cur.upnorth = this.defaultWall;
+				}
+				
+			}
 		}
 	}
 
@@ -516,7 +571,15 @@ class Underground extends Level{
 		area1.addSquare(this.addSquare(5,5,1));
 		area1.addSquare(this.addSquare(6,5,1));
 		area1.addSquare(this.addSquare(7,5,1));
-
+		
+		
+		this.addSquare(4,1,1,Void);
+		this.addSquare(4,1,2,Void).setCeiling('').setNorth('grid');
+		this.addSquare(4,2,2);
+		this.addSquare(4,1,3).setCeiling('');
+		this.addSquare(5,1,3);
+		
+		
 		let sq = this.getSquare(6,5,1);
 		sq.north = 'door';
 		sq.iinorth = 'closeddoor';
@@ -529,40 +592,50 @@ class Underground extends Level{
 		
 		
 		let stairs = this.addSquare(8,5,2,Stairs);
-		stairs.destination = 1;
-		stairs.destinationlevel = this.name;
-		stairs.destinationx = 20;
-		stairs.destinationy = 22;
-		stairs.destinationz = 1;
-		stairs.destinationdir = 'right';
+		// stairs.destination = 1;
+		// stairs.destinationlevel = this.name;
+		// stairs.destinationx = 20;
+		// stairs.destinationy = 22;
+		// stairs.destinationz = 1;
+		// stairs.destinationdir = 'right';
 		stairs.tiletype = 'stairs';
 		stairs.stairsdirection = 'west';
 		stairs.minz = 1;
 		stairs.maxz = 2;
 		this.setSquare(stairs);
 		
+		this.addSquare(9,5,2);
+		this.addSquare(10,5,2);
+		sq = this.getSquare(10,5,2);
+		sq.north = 'grid';
+		this.addSquare(10,6,2);
+		this.addSquare(11,5,2);
+		this.addSquare(12,5,2);
+		this.addSquare(13,5,2);
+		this.addSquare(14,5,2);
+		this.addSquare(15,5,2);
 		
 		
 		
-		this.addSquare(21,22,1);
-		this.addSquare(22,22,1);
-		this.addSquare(21,23,1);
-		this.addSquare(22,23,1);
+		this.addSquare(16,5,2);
+		this.addSquare(17,5,2);
+		this.addSquare(16,6,2);
+		this.addSquare(17,6,2);
 		
-		stairs = this.addSquare(20,22,1,Stairs);
-		stairs.destination = 1;
-		stairs.destinationlevel = this.name;
-		stairs.destinationx = 8;
-		stairs.destinationy = 5;
-		stairs.destinationz = 1;
-		stairs.destinationdir = 'left';
-		stairs.stairsdirection = 'west';
-		stairs.tiletype = 'stairs';
-		stairs.minz = 0;
-		stairs.maxz = 1;
-		this.setSquare(stairs);
+		// stairs = this.addSquare(18,6,2,Stairs);
+		// stairs.destination = 1;
+		// stairs.destinationlevel = this.name;
+		// stairs.destinationx = 8;
+		// stairs.destinationy = 5;
+		// stairs.destinationz = 1;
+		// stairs.destinationdir = 'left';
+		// stairs.stairsdirection = 'west';
+		// stairs.tiletype = 'stairs';
+		// stairs.minz = 1;
+		// stairs.maxz = 2;
+		// this.setSquare(stairs);
 		
-		stairs = this.addSquare(23,23,2,Stairs);
+		stairs = this.addSquare(18,6,3,Stairs);
 		stairs.destination = 1;
 		stairs.destinationlevel = 'sewers';
 		stairs.destinationx = 4;
@@ -571,8 +644,8 @@ class Underground extends Level{
 		stairs.destinationdir = 'right';
 		stairs.stairsdirection = 'west';
 		stairs.tiletype = 'stairs';
-		stairs.minz = 1;
-		stairs.maxz = 2;
+		stairs.minz = 2;
+		stairs.maxz = 3;
 		this.setSquare(stairs);
 		
 		stairs = this.addSquare(1,2,1,Stairs);
@@ -703,6 +776,7 @@ class Underground extends Level{
 		this._entities.push(chest);
 		chest.setNeededKey('HealPotion',null,null);
 		chest.insertItems([new BloodSword(g._nextItemId++)]);
+		chest.insertItems([new BloodDrink(g._nextItemId++)]);
 		chest._square = this.getSquare(6,3,1);
 		this.getSquare(6,3,1)._entity = chest;
 		
@@ -750,9 +824,9 @@ class Sewers extends Level{
 		let stairs = this.addSquare(4,5,1,Stairs);
 		stairs.destination = 1;
 		stairs.destinationlevel = 'underground';
-		stairs.destinationx = 23;
-		stairs.destinationy = 23;
-		stairs.destinationz = 1;
+		stairs.destinationx = 18;
+		stairs.destinationy = 6;
+		stairs.destinationz = 2;
 		stairs.destinationdir = 'left';
 		stairs.tiletype = 'stairs';
 		stairs.stairsdirection = 'west';

@@ -1,0 +1,87 @@
+
+/*Scrollbar*/
+::-webkit-scrollbar-thumb {
+	height: 50px;
+	max-height: 50px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  baackground: url('http://cdn.css-tricks.com/wp-content/themes/CSS-Tricks-10/images/header-demos.jpg');
+  background: url('../ressources/gui/thumblarge.png');
+	background-repeat:no-repeat;
+	background-size: 100% 100%;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+::-webkit-scrollbar-button:increment { /* 2 */ 
+  background: url('../ressources/gui/down.png');
+	background-size: 100% 100%;
+	height: 15px;
+}
+::-webkit-scrollbar-button:decrement { /* 2 */ 
+  background: url('../ressources/gui/up.png');
+background-size: 100% 100%;
+	height: 12px;
+
+}
+::-webkit-scrollbar {
+    width: 12px;
+}
+ 
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    border-radius: 10px;
+}
+
+#inventoryWindow hr {
+    display:block;
+    border:0px;
+    height:10px;
+		background-position:center;
+		background-repeat:no-repeat;
+    background-image:url("../ressources/gui/hr.png");
+}
+/*
+#iteminfo{
+	position : absolute;
+	width:144px;
+	baackground-color:rgba(255,255,255,0.7);
+	background-image:url("../ressources/gui/iteminfo.png");
+	baackground-size : 128px 128px;
+	baackground-position : 10px 0px;
+	background-repeat:no-repeat;
+	maargin:-50px;
+	paadding:50px;
+	
+	padding-top:132px;
+	paadding-left : 4px;
+	z-index:10;
+	border:1px solid grey;
+}
+*/
+
+.buttonVillage{
+	width : 150px;
+	height : 23px;
+	position : absolute;
+	line-height:23px;
+	padding-left : 25px;
+	padding-top : 7px;
+	padding-bottom : 7px;
+	padding-right : 25px;
+	background-image:url("../ressources/gui/button.png");
+	background-size:100% 100%;
+	text-align:center;
+	cursor:pointer;
+	color:white;
+}
+
+.buttonVillage:hover{
+	background-image:url("../ressources/gui/buttonhover.png");
+}
+.roundselect{
+	cursor:pointer;
+	position:absolute;
+	bottom:-10px;
+	left:80px;
+	width:40px;
+	height:40px;
+}

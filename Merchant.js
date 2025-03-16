@@ -34,8 +34,10 @@ class Merchant{
 	}
 	
 	sellUselessItems(){
+		let total = this.cash;
 		for(let i =0;i<this._items.length;i++){
-			if( this._items[i].price < this.totalworth /20 
+			total += this._items[i].price;
+			if( this._items[i].price < this.totalworth /50 
 			|| this._available.indexOf(this._items[i].getClassName()) < 0 
 			|| this.copiesNumber(this._items[i].getClassName()) >= 2 ){
 				//console.log('selling item');
@@ -48,6 +50,7 @@ class Merchant{
 				i--;//On a retiré un index du tableau
 			}
 		}
+		this.totalworth = total;
 		this.showCash();
 	}
 	
@@ -55,8 +58,13 @@ class Merchant{
 		let tobuy = [];
 		for(let i =0;i<this._available.length;i++){
 			//console.log(this._available[i]+' price:'+window[this._available[i]].basePrice());
-			if( window[this._available[i]].basePrice() > this.totalworth /50
-			&& window[this._available[i]].basePrice() <= this.totalworth /5 ){
+			if( /*window[this._available[i]].basePrice() > this.totalworth /100
+			&& */ window[this._available[i]].basePrice() <= this.totalworth /5 ){
+				if(!this.copiesNumber(this._available[i])){//attention aux perf o(n²)
+					tobuy.push(this._available[i]);
+					tobuy.push(this._available[i]);
+				}
+				tobuy.push(this._available[i]);
 				tobuy.push(this._available[i]);
 			}
 		}
@@ -65,8 +73,9 @@ class Merchant{
 		let b = 1;
 		while(b && (this.cash > this.totalworth / 3) ){
 			let r = rand(0,tobuy.length-1);
-			if(this.cash >= window[tobuy[r]].basePrice()){
+			if(tobuy.length && this.cash >= window[tobuy[r]].basePrice()){
 				let item = new window[tobuy[r]](g._nextItemId++);
+				tobuy.splice(r,1);
 				item._character = this;
 				this.cash -= item.price;
 				this._items.push(item);
@@ -95,8 +104,8 @@ class Merchant{
 		if( index < 0) return 0;
 		if(g.gold < Math.floor(item.price*1.5) ) return 0;
 		this.cash += Math.floor(item.price*1.5);
-		g.addGold(-Math.floor(item.price*1.5));
-		this.totalworth += Math.floor(item.price*1.5) - item.price;
+		g.addGold(-Math.floor(item.price*1.3));//Taxes !
+		this.totalworth += Math.floor(item.price*1.3) - item.price;
 		this._items.splice(index,1);
 		this.showCash();
 		return 1;
@@ -107,9 +116,9 @@ class Merchant{
 		if( index >= 0) return 0;
 		if(transaction){
 			if(this.cash < Math.floor(item.price*0.5) ) return 0;
-			this.cash -= Math.floor(item.price*0.5);
+			this.cash -= Math.floor(item.price*0.6);//Taxes
+			this.totalworth +=  item.price - Math.floor(item.price*0.6);
 			g.addGold(Math.floor(item.price*0.5));
-			this.totalworth +=  item.price - Math.floor(item.price*0.5);
 		}
 		this._items.push(item);
 		item._character = this;
@@ -121,9 +130,9 @@ class Merchant{
 		let e = document.createElement('div');
 		e.className = 'buttonVillage';
 		e.style =	'left : 40px; bottom : 20px;z-index:3;';
-		e.innerHTML = 'Back to village';
+		e.innerHTML = l.text('backtovillage',1);
 		
-		e.setAttribute('onclick','showMainWindow("villageWindow")');
+		e.setAttribute('onclick','shopmode=0;showMainWindow("villageWindow")');
 		
 		div.appendChild(e);
 		
@@ -154,7 +163,7 @@ class Merchant{
 		let goldiv = document.createElement('div');
 		goldiv.className = 'shopgold';
 		goldiv.style =	'z-index:3;';
-		goldiv.innerHTML = 'Cash : <span id="gold'+this.name+'">'+this.cash+'</span>';
+		goldiv.innerHTML = '<img src="../ressources/icons/gold.png" class="mediumicon icontext" /><span id="gold'+this.name+'">'+this.cash+'</span>';
 		div.appendChild(goldiv);
 		
 	}

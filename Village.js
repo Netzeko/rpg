@@ -18,11 +18,12 @@ class Village{
 		for(let i=0;i<this._access.length;i++){
 			let e = document.createElement('div');
 			e.className = 'buttonVillage';
-			e.style =	'right : 40px; bottom : '+(20+40*i)+'px;';
-			e.innerHTML = this._access[i][5];
+			e.style =	'right : 20px; bottom : '+(20+40*i)+'px;width:180px;';
+			e.innerHTML = l.text('access'+this._access[i][5],1);
 			
-			let f = new Function([],'g.travel("'+this._access[i][0].name+'",'+this._access[i][1]+','+this._access[i][2]+','+this._access[i][3]+',"'+this._access[i][4]+'");');
-			e.onclick = f;
+			// let f = new Function([],'g.travel("'+this._access[i][0].name+'",'+this._access[i][1]+','+this._access[i][2]+','+this._access[i][3]+',"'+this._access[i][4]+'");');
+			// e.onclick = f;
+			e.setAttribute('onclick','g.travel("'+this._access[i][0].name+'",'+this._access[i][1]+','+this._access[i][2]+','+this._access[i][3]+',"'+this._access[i][4]+'");');
 			this._panel.appendChild(e);
 		}
 
@@ -37,10 +38,13 @@ class Village{
 			let e = document.createElement('div');
 			e.className = 'buttonVillage';
 			e.style =	'left : 40px; bottom : '+(20+40*i)+'px;';
-			e.innerHTML = this._houses[i][2];
+			e.innerHTML = l.text('house'+this._houses[i][0].name,1);
 			
-			
-			e.setAttribute('onclick','showMainWindow("'+h.id+'")');
+			let shopmode = '';
+			if(this._houses[i][0].shop){
+				shopmode = 'shopmode = "'+this._houses[i][0].name+'";';
+			}
+			e.setAttribute('onclick',shopmode+'showMainWindow("'+h.id+'")');
 			this._panel.appendChild(e);
 		}
 	}

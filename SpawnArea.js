@@ -55,7 +55,7 @@ class SpawnArea{
 		}
 
 		let dataArray = data.split('/');
-		console.log('loading spawn'+this._saveid+', '+dataArray.length+' properties');
+		//console.log('loading spawn'+this._saveid+', '+dataArray.length+' properties');
 		for(let i = 0;i<dataArray.length;i++){
 			
 			let variable = dataArray[i].split(':');
@@ -63,9 +63,15 @@ class SpawnArea{
 			if(variable.length < 3) continue;
 			
 			if(variable[0].startsWith('square')){
+				//console.log('loading spawnarea square '+variable[0]);
 				let str = variable[0].substr(6);
 				let coord = str.split('_');
-				this._squares.push(this._level.getSquare(coord[0],coord[1],coord[2]));
+				//console.log(coord);
+				//console.log(this._level);
+				let sq = this._level.getSquare(coord[0],coord[1],coord[2]);
+				//console.log(sq);
+				this._squares.push(sq);
+				
 				delete this[variable[0]];
 			}else{
 			

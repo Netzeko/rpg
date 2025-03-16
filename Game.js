@@ -1,8 +1,6 @@
 class Game{
 	constructor(savename,saveslot = 1) {
-		this._nextCharId = 1;
 		this._partyMembers = [null];
-		this.listPartyMembers = 'zero,'
 		this.savename = savename;
 		this.gold = 0;
 		this._numberMember = 0;
@@ -10,12 +8,14 @@ class Game{
 		this.isgame = 1;
 		this._items = [];
 		this._levels = [];
+		this._allcharacters = [];//Contient tout les personnages, dans le groupe ou non, indexés par id
 		this._scene = null;
 		this._inBattle = 0;
 		this._nextLevelId = 1;
 		this._nextMonsterId = 1;
 		this._nextCharId = 1;
 		this._nextItemId = 1;
+		this._nexteotId = 1;
 		this._village = null;
 		this._nextEntityId = 1;
 		this._spawnareas = [];
@@ -90,32 +90,72 @@ class Game{
 		this._currentMap = null;
 		this._village = new Village();
 		
-		this._village.addAccess(l,1,2,1,'right','Go underground');
+		this._village.addAccess(l,1,2,1,'right','gounderground');
 		
 		let bsmith = new Merchant('blacksmith',this._village);
-		bsmith.addCash(500);
-		bsmith.addAvailableItems(['QuiltedArmor','LeatherGloves']);
-		
+		bsmith.addCash(700);
+		bsmith.addAvailableItems(['PaddedVest','PlateVest','LeatherGloves','PatchedShoes']);
 		this._village.addHouse(bsmith,'blacksmith','Blacksmith');
 		
 		let alche = new Merchant('alchemist',this._village);
-		alche.addCash(100);
-		alche.addAvailableItems(['HealPotion']);
+		alche.addCash(300);
+		alche.addAvailableItems(['HealPotion','SweetDrink']);
 		this._village.addHouse(alche,'alchemist','Alchemist');
+		
+		let church = new Church('church',this._village);
+		this._village.addHouse(church,'church','Church');
+		
+		let inn = new Inn('inn',this._village);
+		let newc;
+		if(window.charimage != 1){
+			newc = new Character('Conrad',this._nextCharId++,this);
+			this._allcharacters[newc._id] = newc;
+			newc.initChar();
+			newc.sprite = 1;
+			inn.addAvailableCharacter(newc );
+		}
+		if(window.charimage != 2){
+			newc = new Character('Betty',this._nextCharId++,this);
+			this._allcharacters[newc._id] = newc;
+			newc.initChar();
+			newc.sprite = 2;
+			inn.addAvailableCharacter(newc );
+		}
+		if(window.charimage != 3){
+			newc = new Character('Katherine',this._nextCharId++,this);
+			this._allcharacters[newc._id] = newc;
+			newc.initChar();
+			newc.sprite = 3;
+			inn.addAvailableCharacter(newc );
+		}
+		if(window.charimage != 4){
+			newc = new Character('Thordan',this._nextCharId++,this);
+			this._allcharacters[newc._id] = newc;
+			newc.initChar();
+			newc.sprite = 4;
+			inn.addAvailableCharacter(newc );
+		}
+		
+		this._village.addHouse(inn,'inn','Inn');
 		
 		this._village.createMenu('villageWindow');
 		
 		let slot = 1;
 		let c = new Character(window.charname,this._nextCharId ++);
+		this._allcharacters[c._id] = c;
+
 		c.initChar();
-		c.sprite = window.charimage
+		c.mainchar = 1;
+		c.sprite = window.charimage;
+		c.inTeam = 2;//main character
+		c.slot = slot;
 		this.listPartyMembers = c.name+',';
 		this._partyMembers[this._partyMembers.length] = c;
 		this._numberMember++;
 		addCharacter(c,slot++);
 		
 		this.savename = window.savename;
-		this.gold = 200;
+		this.gold = 2000;
 	}
 	
 	addGold(amount){
@@ -161,6 +201,7 @@ class Game{
 		for(let i = 0;i<listNames.length;i++){
 			if(listNames[i].length <= 0) continue;
 			let c = new Character(listNames[i],this._nextCharId++,this);
+			this._allcharacters[c._id] = c;
 			this._partyMembers[this._partyMembers.length] = c;
 			this._numberMember++;
 			c.loadFromCookie(this.saveslot);
@@ -203,15 +244,48 @@ class Game{
 
 	}
 	
-	//temporaire, le temps de mettre en place un input text
-	getMemberName(slot){
-		let arr = ['Zero','Kenshi','Leeroy','Rambo','Elminster','Alphonse','Tony'];
-		return arr[slot];
+	/*
+	let next = nextFreeCard(partyCards);
+	if(next){
+		g.addPartyMember(next);
 	}
+	*/
+	
+	hire(cid){
+		let next = nextFreeCard(partyCards);
+		let c = this._allcharacters[cid];
+		if(next && this.gold >= c._price ){
+			this.gold -= c._price;
+			
+			if(c.inTeam) return;
+			this._partyMembers[next] = c;
+			this._numberMember++;
+			addCharacter(c,next);
+			showGold();
+			c.inTeam = 1;
+			c.slot = next;
+			setTimeout('doAction("c",'+c._id+')',c.timeAttack);
 
+			window.inn[c.inn].hired(c);
+		}
+	}
+	
+	dismiss(cid){
+		let c = this._allcharacters[cid];
+		if(c.inTeam && c.inTeam != 2){
+			delete this._partyMembers[c.slot];
+			this._numberMember--;
+			removeCharacter(c);
+			showGold();
+			c.inTeam = 0;
+			window.inn[c.inn].dismissed(c);
+		}
+	}
+	
 	addPartyMember(slot){
 		
 		let c = new Character(this.getMemberName(slot),this._nextCharId ++);
+		this._allcharacters[c._id] = newc;
 		c.initChar();
 		this._partyMembers[this._partyMembers.length] = c;
 		this._numberMember++;
@@ -223,6 +297,12 @@ class Game{
 	saveInCookie(){
 		console.log('saving '+this.saveslot);
 		this.spenttime = this._oldtime + (new Date().getTime() - this._starttime)/1000;
+		
+		this.listPartyMembers = '';
+		for(let i=1;i<this._partyMembers.length;i++){
+			if(!this._partyMembers[i]) continue;
+			this.listPartyMembers += this._partyMembers[i].name+',';
+		}
 		
 		//On commence par les objets pour générer la liste des cookies à charger
 		console.log('saving items...');
@@ -264,11 +344,12 @@ class Game{
 		this._village.saveInCookie(this.saveslot);
 
 		//Save pour l'accueil
-		savetext = 'savename:'+this.savename+':s/'+'time:'+this.spenttime+':n/'+'level:'+this._partyMembers[1].level+':n/'+'sprite:'+this._partyMembers[1].imageid+':n/'+'name:'+this._partyMembers[1].name+':s/';
+		savetext = 'savename:'+this.savename+':s/'+'time:'+this.spenttime+':n/'+'level:'+this._partyMembers[1].level+':n/'+'sprite:'+this._partyMembers[1].sprite+':n/'+'name:'+this._partyMembers[1].name+':s/';
 		setCookie('slot'+this.saveslot,savetext);
 	}
 	
 	/*Retourne -1 si impossible, 0 si manqué, 1 si touché, 2 si mort*/
+	/*
 	computeAttack(attacker,defenser){
 		if(attacker == null || defenser == null){
 			return -1;
@@ -289,18 +370,13 @@ class Game{
 			}
 			defenser.triggerEvents('evhit',[attacker,defenser]);
 			console.log('>Deal '+damages+' damages ('+attacker.attack+' ATT - '+defenser.defense+' DEF)');
-			defenser.modStat('health',- damages);
+			defenser.modStat('health',- damages,attacker);
 			if(damages){
 				defenser.triggerEvents('evhurt',[attacker,defenser]);
 			}
 
 			showBars(defenser);
-			//defenser.showProperty('health');
-			
-			if(defenser.health <= 0){
-				//console.log('dead');
-				defenser.computeDeath(attacker);
-			}
+
 			if(attacker.health <= 0){
 				//console.log('dead');
 				attacker.computeDeath(attacker);
@@ -310,10 +386,19 @@ class Game{
 		}
 		return -1;
 	}
+	*/
 	
-	useSkill(attacker,defenser,skillname){
-		if(!attacker) return;
-		if(!defenser) defenser = attacker;
+	useSkill(attacker,skillname,defenser = null){
+		if(!attacker || !skillname || !attacker._skills[skillname]) return;
+		if(!defenser){
+			if(attacker._skills[skillname].offensive()){
+				defenser = targetedFoe;
+			}else{
+				defenser = targetedAlly;
+				if(!defenser) defenser = selectedChar;
+			}
+		}
+		if(!defenser) return;
 		if(attacker._skills[skillname].use(attacker,defenser)){
 			console.log(skillname+' used');
 			if(defenser.health <= 0){
@@ -407,6 +492,7 @@ class Game{
 		if(levelname){
 			if(!this._currentMap){
 				this._village.disposeItemsShops();
+				save();
 			}
 			if(!this._currentMap || levelname != this._currentMap.name){
 				console.log('travelling to '+levelname+' '+x+' '+y+' '+z+' '+dir);

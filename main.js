@@ -11,6 +11,8 @@ var currentEnnemies = 0;
 var currentMembers = 0;
 var selectedChar = null;
 var targetedChar = null;
+var targetedAlly = null;
+var targetedFoe = null;
 var ennemyCards = [null,null,null,null,null,null,null];
 var partyCards = [null,null,null,null,null,null,null];
 var skills = [];
@@ -27,13 +29,14 @@ var currentSaveSlot = 1;
 var savename = null;
 var charname = null;
 var charimage = null;
-
+var shopmode = 0;
+/*
 function attackTarget(){
 	if(selectedChar && targetedChar){
 		let result = s.computeAttack(selectedChar,targetedChar);
 	}
 }
-
+*/
 function addEnnemy(){
 	let free = nextFreeCard(ennemyCards);
 	if(free){
@@ -52,8 +55,8 @@ function addEnnemy(){
 }
 
 function upgrade(id,attr){
-	if(!members[id])return;
-	members[id].upgrade(attr);
+	if(!g._allcharacters[id])return;
+	g._allcharacters[id].upgrade(attr);
 }
 
 function nextFreeCard(cards){
@@ -78,41 +81,53 @@ function randomMonster(){
 
 function randomCharacter(){
 	let res = rand(1,currentMembers); //Math.ceil( Math.randm() * currentMembers);
-	for(let i = 1;i<members.length;i++){
-		if(members[i] != null && !members[i].dead){
+	for(let i = 1;i<g._partyMembers.length;i++){
+		if(g._partyMembers[i] != null && !g._partyMembers[i].dead){
 			res --;
 			if(!res){
-				return members[i];
+				return g._partyMembers[i];
 			}
 		}
 	}
 	return null;
 }
 
-function selectChar(id){
-	if(!members[id]) return 0;
-	selectedChar = members[id];
+function selectChar(cid){
+	console.log('selectChar '+cid);
+	if(!g._allcharacters[cid] || !g._allcharacters[cid].inTeam) return 0;
+	selectedChar = g._allcharacters[cid];
 	charSelectSubWindow(charSubWindowShowed,selectedChar._id);
-	
-	changeSelectedDisplay(id);
+	console.log('OK change select');
+	changeSelectedDisplay(selectedChar._id);
 }
 
-function target(side,id,slot){
-	let selected = document.getElementsByClassName('selected');
-
-	for(let i =0;i<selected.length;i++){
-		selected[i].classList.remove("selected");
-	}
+function target(side,slot){
+	
+	
 	//console.log(side+slot+'card');
 	if(side=='party'){
-		targetedChar = members[id];
+		targetedChar = partyCards[slot];
+		targetedAlly = partyCards[slot];
+		let selected = document.getElementsByClassName('selectedally');
+		for(let i =0;i<selected.length;i++){
+			selected[i].classList.remove("selectedally");
+		}
+		if(!targetedChar) return;
+		document.getElementById(side+slot+'card').className += ' selectedally';
+
 	}else{
-		targetedChar = ennemies[id];
+		targetedChar = ennemyCards[slot];
+		targetedFoe = ennemyCards[slot];
+		let selected = document.getElementsByClassName('selected');
+		for(let i =0;i<selected.length;i++){
+			selected[i].classList.remove("selected");
+		}
+		if(!targetedChar) return;
+		document.getElementById(side+slot+'card').className += ' selected';
 	}
 	
-	if(!targetedChar) return;
+	
 	//console.log(targetedChar);
-	document.getElementById(side+slot+'card').className += ' selected';
 
 }
 
@@ -126,9 +141,9 @@ function removeEnnemy(id,slot){
 	if(targetedChar && targetedChar._id == id){
 		let m = randomMonster();
 		if(m){
-			target('ennemy',m._id,m.slot)
+			target('ennemy',m.slot)
 		}else{
-			target('ennemy',0,0);
+			target('ennemy',0);
 		}
 	}
 	if(!currentEnnemies){
@@ -147,8 +162,18 @@ function initSkillbook(){
 	let availableSkills = [];
 	addSkill(Heal);
 	addSkill(Fireball);
+	addSkill(Firebolt);
 	addSkill(Attack);
 	addSkill(UseItem);
+	addSkill(FireBasics);
+	addSkill(Burn);
+	addSkill(FireAdvanced);
+	addSkill(FirePillar);
+	addSkill(FireBarrier);
+	addSkill(EndoFire);
+	addSkill(FireRain);
+	addSkill(Explosion);
+	//addSkill(Bite);
 	//addSkill(Meditate);
 
 	addSkillBookWindow(skills);
@@ -180,7 +205,9 @@ function loadFromString(){
 
 var l;
 var inAnimation = 0;
-
+var CtrlDown = 0;
+var ShiftDown = 0;
+var AltDown = 0;
 
 function init(){
 	let sslot = getCookie('currentSaveSlot');
@@ -197,20 +224,22 @@ function init(){
 	
 	initSkillbook();
 	registerItem(HealPotion);
-	registerItem(QuiltedArmor);
+	//registerItem(QuiltedArmor);
 	registerItem(LeatherGloves);
 	registerItem(CopperRing);
 	registerItem(BloodSword);
 	registerItem(RoughSaphire);
+	registerItem(Tooth);
+	registerItem(Wing);
+	registerItem(Crystaldark);
+	registerItem(PaddedVest);
+	registerItem(PlateVest);
+	registerItem(PatchedShoes);
+	registerItem(SweetDrink);
+	registerItem(BloodDrink);
 	
 
 	g.init(currentSaveSlot);
-	
-	//a changer par le niveau courant
-	/*
-	l = s._levels[0];
-	showMap(l);
-	moveMap(l);*/
 	viewInit();
 	
 	g.addScene( new DungeonScene() );
@@ -219,16 +248,38 @@ function init(){
 	g._scene.addMaterial('door');
 	g._scene.addMaterial('door2','texture',true);
 	g._scene.addMaterial('void','texture',true);
+	g._scene.addMaterial('grid','texture',true);
 	g._scene.addMaterial('ground');
 	g._scene.addMaterial('ceiling');
 	g._scene.addMaterial('ceilingdark');
 	g._scene.addMaterial('darkstone');
 	g._scene.addMaterial('brownstone');
 	
+	document.onkeyup = function(e) {
+		//console.log('KEY UP');
+		//console.log(e);
+		e = e || window.event;
+		//console.log(e.which || e.keyCode);
+		switch(e.which || e.keyCode) {
+			case 17: // Ctrl
+				CtrlDown = 0;
+				break;
+			case 16: // Shift
+				ShiftDown = 0;
+				break;
+			case 18: // Alt
+				AltDown = 0;
+				break;
+				
+		}
+	}
+	
 	document.onkeydown = function(e) {
 		let oldSquare,newSquare,olddir,newdir;//Used for animation;
 		e = e || window.event;
 		//console.log(e.which || e.keyCode);
+		//console.log(e);
+		//console.log('shift='+ShiftDown);
 		switch(e.which || e.keyCode) {
 			case 37: // left
 				if(g._inBattle || !g._currentMap || inAnimation) return;
@@ -342,28 +393,34 @@ function init(){
 			case 96: //numpad 0
 				break;
 			case 97: //numpad 1
-				//target('party',partyCards[5]._id,5);
-				selectChar(5);
+				console.log('pad1');
+				if(partyCards[5])
+					selectChar(partyCards[5]._id);
 				break;
 			case 98: //numpad 2
-				//target('party',partyCards[4]._id,4);
-				selectChar(4);
+				console.log('pad2');
+				if(partyCards[4])
+					selectChar(partyCards[4]._id);
 				break;
 			case 99: //numpad 3
-				//target('party',partyCards[6]._id,6);
-				selectChar(6);
+				console.log('pad3');
+				if(partyCards[6])
+					selectChar(partyCards[6]._id);
 				break;
 			case 100: //numpad 4
-				//target('party',partyCards[2]._id,2);
-				selectChar(2);
+				console.log('pad4');
+				if(partyCards[2])
+					selectChar(partyCards[2]._id);
 				break;
 			case 101: //numpad 5
-				//target('party',partyCards[1]._id,1);
-				selectChar(1);
+				console.log('pad5');
+				if(partyCards[1])
+					selectChar(partyCards[1]._id);
 				break;
 			case 102: //numpad 6
-				//target('party',partyCards[3]._id,3);
-				selectChar(3);
+				console.log('pad6');
+				if(partyCards[3])
+					selectChar(partyCards[3]._id);
 				break;
 				
 			case 103: //numpad 7
@@ -385,8 +442,214 @@ function init(){
 				if(!selectedChar)break;
 				charSelectSubWindow('skills',selectedChar._id);
 				break;
+			case 17://Ctrl
+				CtrlDown = 1;
+				break;
+			case 16://Shift
+				ShiftDown = 1;
+				break;
+			case 18://Alt
+				AltDown = 1;
+				break;
+			case 49://& 1
+				if(!ShiftDown){
+					target('ennemy',2);
+				}else{
+					target('party',2);
+				}
+				break;
+			case 50://é 2
+				if(!ShiftDown){
+					target('ennemy',1);
+				}else{
+					target('party',1);
+				}
+				break;
+			case 51://" 3
+				if(!ShiftDown){
+					target('ennemy',3);
+				}else{
+					target('party',3);
+				}
+				break;
+			case 52://' 4
+				if(!ShiftDown){
+					target('ennemy',5);
+				}else{
+					target('party',5);
+				}
+				break;
+			case 53://( 5
+				if(!ShiftDown){
+					target('ennemy',4);
+				}else{
+					target('party',4);
+				}
+				break;
+			case 54://- 6
+				if(!ShiftDown){
+					target('ennemy',6);
+				}else{
+					target('party',6);
+				}
+				break;
+			case 55://è 7
+				if(ShiftDown){
+					target('ennemy',2);
+				}else{
+					target('party',2);
+				}
+				break;
+			case 56://_ 8
+				if(ShiftDown){
+					target('ennemy',1);
+				}else{
+					target('party',1);
+				}
+				break;
+			case 57://ç 9
+				if(ShiftDown){
+					target('ennemy',3);
+				}else{
+					target('party',3);
+				}
+				break;
+			case 48://à 0
+				if(ShiftDown){
+					target('ennemy',5);
+				}else{
+					target('party',5);
+				}
+				break;
+			case 219://) °
+				if(ShiftDown){
+					target('ennemy',4);
+				}else{
+					target('party',4);
+				}
+				break;
+			case 187://= +
+				if(ShiftDown){
+					target('ennemy',6);
+				}else{
+					target('party',6);
+				}
+				break;
+				
+				
+			//1ere ligne de sorts
+			case 65://a
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[0]);
+				break;
+			case 90://z
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[1]);
+				break;
+			case 69://e
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[2]);
+				break;
+			case 82://r
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[3]);
+				break;
+			case 84://t
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[4]);
+				break;
+			case 89://y
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[5]);
+				break;
+			case 85://u
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[6]);
+				break;
+			case 73://i
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[7]);
+				break;
+			case 79://o
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[8]);
+				break;
+			//Ligne 2
+			case 81://q
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[9]);
+				break;
+			case 83://s
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[10]);
+				break;
+			case 68://d
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[11]);
+				break;
+			case 70://f
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[12]);
+				break;
+			case 71://g
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[13]);
+				break;
+			case 72://h
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[14]);
+				break;
+			case 74://j
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[15]);
+				break;
+			case 75://k
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[16]);
+				break;
+			case 76://l
+				if(!selectedChar || !targetedChar) return;
+				g.useSkill(selectedChar,selectedChar._quickSkills[17]);
+				break;
+			//quickslots
 			
-
+			case 87://w
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[0],targetedAlly || selectedChar);
+				break;			
+			case 88://x
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[1],targetedAlly || selectedChar);
+				break;
+			case 67://c
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[2],targetedAlly || selectedChar);
+				break;
+			case 86://v
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[3],targetedAlly || selectedChar);
+				break;
+			case 66://b
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[4],targetedAlly || selectedChar);
+				break;
+			case 78://n
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[5],targetedAlly || selectedChar);
+				break;
+			case 188://,
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[6],targetedAlly || selectedChar);
+				break;
+			case 190://;
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[7],targetedAlly || selectedChar);
+				break;
+			case 191://:
+				if(!selectedChar) return;
+				useItem(selectedChar._quickSlots[8],targetedAlly || selectedChar);
+				break;
+			
 			default: return; // exit this handler for other keys
 		}
 	}
@@ -398,6 +661,57 @@ function init(){
 		g._spawnareas[i].spawn();
 	}
 
+	showLateralWindow('inventoryWindow');
+	
+	
+	let sel = '<select id="selectItemDebug">'
+	for(let i=0;i<knownItems.length;i++){
+		sel+= '<option value="'+knownItems[i].staticClassName()+'">'+knownItems[i].staticName()+'</option>';
+	}
+	sel+= '</select><input type="button" value="add item" onclick="addItemFromName(document.getElementById(\'selectItemDebug\').value)"/>';
+	document.getElementById('addItemDebug').innerHTML = sel;
+	
+	window.onload = function() {document.getElementById("loadingScreen").style.display = "none"; };
+	//setTimeout('document.getElementById("loadingScreen").style.display = "none";',2000);
+}
+
+function playerFalling(){
+	/*
+	oldSquare = g._currentMap.getCurrentSquare();
+	olddir = g._currentMap.dir;
+	
+	g._currentMap.moveForward(1);
+	
+	newSquare = g._currentMap.getCurrentSquare();
+	newdir = g._currentMap.dir;
+	
+	moveMap(g._currentMap);
+	actualizeMap(g._currentMap,1);
+	//g._scene.actualizePosition();
+	inAnimation = true;
+	g._currentMap.animationStart(oldSquare,newSquare);
+	g._scene.initMovement(oldSquare.getPosition(),oldSquare.getDirection(olddir),new Date().getTime(),
+												newSquare.getPosition(),newSquare.getDirection(newdir),new Date().getTime()+400);
+	*/
+	let oldSquare =  g._currentMap.getCurrentSquare();
+	let olddir =  g._currentMap.dir;
+	
+	g._currentMap.fall();
+	
+	let newSquare = g._currentMap.getCurrentSquare();
+	let newdir = olddir;
+	
+	moveMap(g._currentMap);
+	actualizeMap(g._currentMap,1);
+	//g._scene.actualizePosition();
+	inAnimation = true;
+	g._currentMap.animationStart(oldSquare,newSquare);
+	console.log('animation ?');
+	g._scene.initMovement(oldSquare.getPosition(),oldSquare.getDirection(olddir),new Date().getTime(),
+												newSquare.getPosition(),newSquare.getDirection(newdir),new Date().getTime()+250);
+	console.log('animation !');
+	return 1;
+	
 }
 
 function interact(n,item = null){
@@ -436,7 +750,7 @@ function doAction(type,id){
 	if(type == 'm'){
 		user = ennemies[id];
 	}else if(type == 'c'){
-		user = members[id];
+		user = g._allcharacters[id];
 	}
 	if(user){
 		user.doAction();
@@ -459,7 +773,7 @@ function addPotion(){
 }
 
 function addArmor(){
-	let a = new window['QuiltedArmor'](g._nextItemId++);
+	let a = new window['PaddedVest'](g._nextItemId++);
 	g.addItem(a);
 	//items[a._id] = a;
 	addItemDiv(a);
@@ -491,7 +805,19 @@ function addItem(item,container = 'inventoryWindow'){
 
 function selectItem(id){
 	//selectedItem = items[id];
-	showSelectionItem(id);
+	if(CtrlDown && shopmode){
+		item = document.getElementById('item'+id).item;
+		let target;
+		if(item._character.shop){
+			target = document.getElementById('inventoryWindow');
+		}else{
+			target = document.getElementById('shop'+shopmode);
+		}
+		moveItem(item,target);
+
+	}else{
+		showSelectionItem(id);
+	}
 }
 
 function useItem(item = null,target = null){
@@ -505,7 +831,6 @@ function useItem(item = null,target = null){
 		target = targetedChar;
 	}
 	if(item.use(selectedChar,target)){
-		console.log('USED');
 		removeItem(item);
 	}
 	document.getElementById('iteminfo').style.display = 'none';
@@ -520,10 +845,22 @@ function removeItem(item){
 	}
 }
 
-function resurrectMember(){
-	if(!targetedChar || targetedChar.isMonster )return;
-	targetedChar.resurrect();
-	targetedChar.showProperties();
+function resurrectMember(price = 0){
+	if(!targetedChar && !selectedChar || targetedChar.isMonster )return;
+	let target;
+	if(!targetedChar){
+		target = selectedChar;
+	}
+	else{
+		target = targetedChar;
+	}
+	
+	if(target.dead && g.gold >= price){
+		g.gold-= price;
+		showGold();
+		target.resurrect();
+		target.showProperties();
+	}
 }
 
 

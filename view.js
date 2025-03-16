@@ -6,7 +6,7 @@ function showBars(entity){
 		maxw = 198;
 	}else{
 		suffix = 'c';
-		maxw = 99;
+		maxw = 84;
 	}
 	let whealth = Math.round(maxw * entity.health / entity.maxhealth);
 	if(document.getElementById('healthbar'+suffix+entity._id) ){
@@ -45,20 +45,21 @@ function showSkills(){
 function addSkillBookWindow(skillbook){
 	let divSB = document.createElement('div');
 	divSB.id = 'skillbookWindow';
-	
+	/*
 	for(let i =0;i<skillbook.length;i++){
 		divSB.innerHTML +=
 		'<div class="skillrow">'+
 			//'<div class="skilllearn" onclick="learnSkill(\''+skillbook[i].getName()+'\')">Learn</div>'+
-			'<img style="cursor: pointer;" class="skillbookicon" onclick="learnSkill(\''+skillbook[i].getName()+'\')" src="../ressources/icons/skillbook.png"/>'+
+			'<img style="cursor: pointer;" class="skillbookicon" onclick="learnSkill(\''+skillbook[i].getClassName()+'\')" src="../ressources/icons/skillbook.png"/>'+
 			'<img class="skillbookicon" src="../ressources/skills/'+skillbook[i].getClassName()+'.png" onmousemove="showSkillInfo(event,this,'+skillbook[i].getClassName()+')" onmouseout="hideSkillInfo();"/> '+
 			'<div class="skillname">'+skillbook[i].getName()+'</div>'+
 		'</div><br class="clearFloat"/>';
 	}
+	*/
 	divSB.style.display = 'none';
 	document.getElementById('lateralWindow').appendChild(divSB);
-	document.getElementById('rightMenu').innerHTML += 
-	'<input type="button" value="skillbook" onclick="showLateralWindow(\'skillbookWindow\')"/>';
+	// document.getElementById('rightMenu').innerHTML += 
+	// '<input type="button" value="skillbook" onclick="showLateralWindow(\'skillbookWindow\')"/>';
 	
 	
 }
@@ -66,6 +67,8 @@ function addSkillBookWindow(skillbook){
 function changeSelectedDisplay(id){
 	hideChildren('characterWindow');
 	show('charPanel'+id);
+	hideChildren('skillbookWindow');
+	show('skillBook'+id);
 }
 
 
@@ -129,7 +132,9 @@ function characterPrioRow(c,row,rownumber){
 		}else{
 			selected = '';
 		}
-		priodiv += '<option value="'+c._skills[j].getClassName()+'" '+selected+'>'+c._skills[j].getName()+'</option>';
+		if( !c._skills[j].passive() ){
+			priodiv += '<option value="'+c._skills[j].getClassName()+'" '+selected+'>'+c._skills[j].getName()+'</option>';
+		}
 	}
 	if(row[3] == 'Nothing'){
 		selected = ' selected="selected" ';
@@ -159,15 +164,33 @@ function characterPrioList(c){
 		//let itemname = '';
 	for(i=0;i<c._prio.length;i++){
 		priolist += characterPrioRow(c,c._prio[i],i);
-		priolist +='<input type="button" value="Update" onclick="updateprio('+c._id+','+i+')"/><br/>';
+		priolist +='<input type="button" value="Update" onclick="updateprio('+c._id+','+i+')"/>'+
+		'<img class="smallicon" src="../ressources/gui/up.png"   style="float:none;margin:1px;vertical-align:middle;cursor:pointer;" onclick="moveprio('+c._id+','+i+',\'up\')"/>'+
+		'<img class="smallicon" src="../ressources/gui/down.png" style="float:none;margin:1px;vertical-align:middle;cursor:pointer;" onclick="moveprio('+c._id+','+i+',\'down\')"/>'+
+		'<br/>';
 	}
 	priolist += characterPrioRow(c,['','','','',''],i)+'';
 	priolist +='<input type="button" value="Add" onclick="updateprio('+c._id+','+i+')"/><br/>';
 	return priolist;
 }
 
+function moveprio(cid,n,updown){
+	let c = g._allcharacters[cid];
+	if(!c) return;
+	if(updown == 'up'){
+		n--;
+	}
+	if(c.switchprio(n,n+1)){
+		let div = document.getElementById('prio'+c._id);
+		if(!div) return;
+		div.innerHTML = characterPrioList(c);
+	}
+}
+
 function updateprio(cid,row){
-	let c = g._partyMembers[cid];
+	let div = document.getElementById('prio'+cid);
+	if(!div) return;
+	let c = g._allcharacters[cid];
 	if(row >=0){	//row == -1 => refresh list
 		let targetcond = document.getElementById('priotargetcond'+cid+'_'+row).value;
 		let cond = document.getElementById('priocond'+cid+'_'+row).value;
@@ -183,7 +206,19 @@ function updateprio(cid,row){
 			c._prio[row] = [targetcond,cond,treshold,action,ptarget];
 		}
 	}
-	document.getElementById('prio'+cid).innerHTML = characterPrioList(c);
+	div.innerHTML = characterPrioList(c);
+}
+
+function removeCharacter(c){
+	let panel = document.getElementById('charPanel'+c._id);
+	panel.parentNode.removeChild(panel);
+	let divc = document.getElementById('char'+c._id);
+	divc.parentNode.removeChild(divc);
+	if(!c.dead){
+		currentMembers--;
+	}
+	partyCards[c.slot] = null;
+
 }
 
 //c instance Character
@@ -195,21 +230,24 @@ function addCharacter(c,slot){
 		divC.character = c;
 		divC.innerHTML = 
 		'<span class="charName" id="char'+c._id+'name">'+c.name+'</span><br/>'+
-		'<img src="../ressources/char/'+c.sprite+'.png" alt="Member" class="charImg" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')">'+
-		'<input type="button" value="select" onclick="selectChar('+c._id+')"/>'+
-		'<div class="maxbarc"><div class="healthbar barc" id="healthbarc'+c._id+'"></div></div>'+
-		'<div class="maxbarc"><div class="endurancebar barc" id="endurancebarc'+c._id+'"></div></div>'+
-		'<div class="maxbarc"><div class="manabar barc" id="manabarc'+c._id+'"></div></div>'+
-		'<div class="maxbarc"><div class="mindbar barc" id="mindbarc'+c._id+'"></div></div>';
+		'<img src="../ressources/char/'+c.sprite+'.png" alt="Member" class="charImg" id="imgchar'+c._id+'" onclick="target(\'party\','+slot+')">'+
+		//'<br/><input type="button" value="select" onclick="selectChar('+c._id+')"/>'+
+		'<div class="maxbarc" style="left:0px;bottom:10px;"><div class="healthbar barc" id="healthbarc'+c._id+'"></div></div>'+
+		'<div class="maxbarc" style="right:0px;bottom:10px;"><div class="endurancebar barc" id="endurancebarc'+c._id+'"></div></div>'+
+		'<div class="maxbarc" style="left:0px;bottom:0px;"><div class="manabar barc" id="manabarc'+c._id+'"></div></div>'+
+		'<div class="maxbarc" style="right:0px;bottom:0px;"><div class="mindbar barc" id="mindbarc'+c._id+'"></div></div>'+
+		'<img class="roundselect" src="../ressources/gui/roundselect.png" onclick="selectChar('+c._id+')"/>'+
+		'<div class="eot" id="eot'+c._id+'"></div>'+
+		'<img class="mediumicon charsmile" id="smile'+c._id+'" src="../ressources/icons/moral'+c.getMoral()+'.png">';
 		divC.validDropTarget = 1;
 		divC.setAttribute('ondrop','dropItem(event)');
 		divC.setAttribute('ondragover','allowDrop(event)');
+		console.log(c);
+		console.log(slot);
 		document.getElementById('party'+slot+'card').appendChild(divC);
 		
 		partyCards[slot] = c;
-		members[c._id] = c;
 		currentMembers++;
-		c.regenerate();
 		
 		let qslotdiv = '';
 		for(let i=0;i<c.maxqslot;i++){
@@ -241,52 +279,158 @@ function addCharacter(c,slot){
 		let divStatC = document.createElement('div');
 		divStatC.id = 'charPanel'+c._id;
 		divStatC.className = 'charPanel';
-		divStatC.style.backgroundImage = 'url("../ressources/char/swordman1.png")';
+		divStatC.style.backgroundImage = 'url("../ressources/char/'+c.sprite+'.png")';
 
 		divStatC.innerHTML = 
 		'<div class="transparentWhite" id="charChildPanel'+c._id+'">'+
-		'<input type="button" value="Characteritics & Skills" onclick="charSelectSubWindow(\'charStats\','+c._id+')"/>'+
-		'<input type="button" value="Equipment" onclick="charSelectSubWindow(\'equip\','+c._id+')"/>'+
-		'<input type="button" value="Priorities" onclick="charSelectSubWindow(\'prio\','+c._id+')"/>'+
-		'<input type="button" value="Skills" onclick="charSelectSubWindow(\'skills\','+c._id+')"/>'+
+		'<div class="buttonChar" onclick="charSelectSubWindow(\'charStats\','+c._id+')">'+l.text('buttonstatus',1)+'</div>'+
+		'<div class="buttonChar" onclick="charSelectSubWindow(\'equip\','+c._id+')">'+l.text('buttonequip',1)+'</div>'+
+		'<div class="buttonChar" onclick="charSelectSubWindow(\'prio\','+c._id+')">'+l.text('buttonorders',1)+'</div>'+
+		'<div class="buttonChar" onclick="charSelectSubWindow(\'skills\','+c._id+')">'+l.text('buttonskills',1)+'</div>'+
 		'<hr class="clearFloat"/>'+
 		'<div id="charStats'+c._id+'" class="charSubPanel">'+
 		'<div class="character">'+
-		'	name : <span id="name'+c._id+'"></span><br/>'+
-		'	level : <span id="level'+c._id+'"></span><br/>'+
-		'	health : <span id="health'+c._id+'"></span>/<span id="maxhealth'+c._id+'"></span><br/>'+
-		'	endurance : <span id="endurance'+c._id+'"></span>/<span id="maxendurance'+c._id+'"></span><br/>'+
-		'	mana : <span id="mana'+c._id+'"></span>/<span id="maxmana'+c._id+'"></span><br/>'+
-		'	mind : <span id="mind'+c._id+'"></span>/<span id="maxmind'+c._id+'"></span><br/>'+
-		'	exp : <span id="exp'+c._id+'"></span><br/>'+
-		' skillpoints : <span id="skillpoints'+c._id+'"></span><br/>'+
+		'	<span id="name'+c._id+'"></span>'+
+		' <div class="subcaracteristicsWrapper" style="float:right;"> '+
+		' <img class="mediumicon" src="../ressources/icons/level.png"/>&nbsp;'+
+		'	<span id="level'+c._id+'" style="font-size:24px;"></span><br class="clearFloat"/>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/exp.png"/>'+
+		'	<span id="exp'+c._id+'"></span><br class="clearFloat"/>'+
+		'	</div><br class="clearFloat"/>'+
+		' <div class="maincaracteristicsWrapper caracteristics"> '+
+		' <img class="mediumicon" src="../ressources/icons/health.png"/>'+
+		'	<span id="health'+c._id+'"></span> / <span id="maxhealth'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="subcaracteristicsWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/attack.png" />'+
+		' <span id="attack'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="maincaracteristicsWrapper caracteristics"> '+
+		' <img class="mediumicon" src="../ressources/icons/endurance.png"/>'+
+		'	<span id="endurance'+c._id+'"></span> / <span id="maxendurance'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="subcaracteristicsWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/defense.png" />'+
+		' <span id="defense'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="maincaracteristicsWrapper caracteristics"> '+
+		' <img class="mediumicon" src="../ressources/icons/mana.png"/>'+
+		'	<span id="mana'+c._id+'"></span> / <span id="maxmana'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="subcaracteristicsWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/precision.png" />'+
+		' <span id="precision'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="maincaracteristicsWrapper caracteristics"> '+
+		' <img class="mediumicon" src="../ressources/icons/mind.png"/>'+
+		'	<span id="mind'+c._id+'"></span> / <span id="maxmind'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="subcaracteristicsWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/dodge.png" />'+
+		' <span id="dodge'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="maincaracteristicsWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/skillpoints.png" onclick="showLateralWindow(\'skillbookWindow\')" style="cursor:pointer;"/>'+
+		' <span id="skillpoints'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="subcaracteristicsWrapper"> '+
+		' <img class="mediumicon" src="../ressources/icons/magicpower.png" />'+
+		' <span id="magicpower'+c._id+'"></span>'+
+		'	</div>'+
 		'</div>'+
 		'<div class="attributes">'+
-		'available points : <span id="points'+c._id+'"></span><br/>'+
-		'	strength : <span id="strength'+c._id+'"></span>'+
+		' <img class="mediumicon"  style="margin-left:50px;" src="../ressources/icons/rainbowplus.png"/>'+
+		' <span class="attribute" id="points'+c._id+'" style="margin-right:30px;"></span>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'strength\')" style="cursor:pointer;" src="../ressources/icons/strength.png"/>'+
+		' <span class="attribute" id="strength'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_strength'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'strength\')"/><br/>'+
-		'	constitution : <span id="constitution'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'constitution\')" style="cursor:pointer;" src="../ressources/icons/constitution.png"/>'+
+		'	<span class="attribute" id="constitution'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_constitution'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'constitution\')"/><br/>'+
-		'	dexterity : <span id="dexterity'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'dexterity\')" style="cursor:pointer;" src="../ressources/icons/dexterity.png"/>'+
+		'	<span class="attribute" id="dexterity'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_dexterity'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'dexterity\')"/><br/>'+
-		'	perception : <span id="perception'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'perception\')" style="cursor:pointer;" src="../ressources/icons/perception.png"/>'+
+		'	<span class="attribute" id="perception'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_perception'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'perception\')"/><br/>'+
-		'	spirit : <span id="spirit'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'spirit\')" style="cursor:pointer;" src="../ressources/icons/spirit.png"/>'+
+		'	<span class="attribute" id="spirit'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_spirit'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'spirit\')"/><br/>'+
-		'	wisdom : <span id="wisdom'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'wisdom\')" style="cursor:pointer;" src="../ressources/icons/wisdom.png"/>'+
+		'	<span class="attribute" id="wisdom'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_wisdom'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'wisdom\')"/><br/>'+
-		'	luck : <span id="luck'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'luck\')" style="cursor:pointer;" src="../ressources/icons/luck.png"/>'+
+		'	<span class="attribute" id="luck'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_luck'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'luck\')"/><br/>'+
-		'	speed : <span id="speed'+c._id+'"></span>'+
+		'	</div>'+
+		' <div class="attributeWrapper"> '+
+		'	<img class="mediumicon"  onclick="upgrade('+c._id+',\'speed\')" style="cursor:pointer;" src="../ressources/icons/speed.png"/>'+
+		'	<span class="attribute" id="speed'+c._id+'"></span>'+
 		' <span class="modifier">(+<span id="modifier_speed'+c._id+'"></span>)</span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'speed\')"/><br/>'+
+		'	</div>'+/////////////////****///////
+		' <img src="../ressources/icons/elements.png" onmouseenter="show(\'elements'+c._id+'\')" onmouseleave="hide(\'elements'+c._id+'\')" class="largeicon elementsicon"/>'+
+		' <div id="elements'+c._id+'" style="display:none;" class="elements">'+
+		' 	<div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/fire.png"/>'+
+		'		<span style="color:#009000;"><span id="boostfire'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;"><span id="_resfire'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		' 	<div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/ice.png"/>'+
+		'		<span style="color:#009000;"><span id="boostice'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;"><span id="_resice'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		' 	<div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/thunder.png"/>'+
+		'		<span style="color:#009000;"><span id="boostthunder'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;"><span id="_resthunder'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		' 	<div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/water.png"/>'+
+		'		<span style="color:#009000;" ><span id="boostwater'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;" ><span id="_reswater'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		'	 <div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/earth.png"/>'+
+		'		<span style="color:#009000;" ><span id="boostearth'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;" ><span id="_researth'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		'	 <div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/wind.png"/>'+
+		'		<span style="color:#009000;"><span id="boostwind'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;"><span id="_reswind'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		'	 <div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/light.png"/>'+
+		'		<span style="color:#009000;" ><span id="boostlight'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;" ><span id="_reslight'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		'	 <div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/darkness.png"/>'+
+		'		<span style="color:#009000;" ><span id="boostdarkness'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;" ><span id="_resdarkness'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		' 	<div class="resistWrapper"> '+
+		'		<img class="largeicon"  style="margin-right:4px;float:left;" src="../ressources/icons/life.png"/>'+
+		'		<span style="color:#009000;"><span id="boostlife'+c._id+'"></span> %</span><br/>'+
+		'		<span style="color:#900000;"><span id="_reslife'+c._id+'"></span> %</span>'+
+		'		</div>'+
+		'	</div>'+
 		'</div>'+
 		'<hr class="clearFloat"/>'+
 		qskilldiv+
@@ -299,12 +443,22 @@ function addCharacter(c,slot){
 		'<div id="prio'+c._id+'" class="charSubPanel" style="display:none;">'+
 		priodiv+
 		'</div>'+
-		'<div id="skills'+c._id+'" class="charSubPanel" style="display:none;">'+
-		''+
+		'<div id="skills'+c._id+'" class="charSubPanel skillsPanel" style="display:none;">'+
+		'<div class="knownSkills" id="knownSkills'+c._id+'"></div>'+
+		// '<div class="knownSkills" id="skillBook'+c._id+'" style="display:none;"></div>'+
+		// '<div class="buttonVillage" style="left:20px" onclick="hide(\'skillBook'+c._id+'\');show(\'knownSkills'+c._id+'\');">Compétences connues</div>'+
+		// '<div class="buttonVillage" style="left:220px" onclick="hide(\'knownSkills'+c._id+'\');show(\'skillBook'+c._id+'\');">Apprendre compétences</div>'+
 		'</div>'+
 		'</div>';
 		//var charSkills = c._skills;
 		
+		let sb = document.createElement('div');
+		sb.id = 'skillBook'+c._id;
+		sb.style.display = 'none';
+		sb.innerHTML = 
+			'<div id="availableSkills'+c._id+'" class="thirdpanel"></div>'+
+			'<div id="almostAvailableSkills'+c._id+'" class="thirdpanel"></div>';
+		document.getElementById('skillbookWindow').appendChild(sb);
 		
 		divStatC.style.display = 'none';
 		document.getElementById('characterWindow').appendChild(divStatC);
@@ -327,7 +481,7 @@ function addCharacter(c,slot){
 		*/
 		for(let i=0;i<c._quickSkills.length;i++){
 			if(!c._quickSkills[i]) continue;
-			document.getElementById('qskill'+c._id+'_'+i).innerHTML = '<img onclick="g.useSkill(selectedChar,targetedChar,\''+c._quickSkills[i]+'\')" src="../ressources/skills/'+c._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+c._quickSkills[i]+')" onmouseout="hideSkillInfo();"/>';
+			document.getElementById('qskill'+c._id+'_'+i).innerHTML = '<img onclick="g.useSkill(selectedChar,\''+c._quickSkills[i]+'\')" src="../ressources/skills/'+c._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+c._quickSkills[i]+')" onmouseout="hideSkillInfo();"/>';
 			//addItemDiv(c._quickSlots[i],'qslot'+c._id+'_'+i);
 		}
 		
@@ -347,22 +501,135 @@ function addCharacter(c,slot){
 
 
 function showSkillsChar(id){
-	let div = document.getElementById('skills'+id);
+	let div = document.getElementById('knownSkills'+id);
+	if(!div)return;
 	div.innerHTML = '';
-	for(let i=0;i<members[id]._skills.length;i++){
-		div.innerHTML +=
-			'<img id="skill'+id+'_'+members[id]._skills[i].getClassName()+'" onclick="g.useSkill(selectedChar,targetedChar,\''+members[id]._skills[i].getClassName()+'\')" src="../ressources/skills/'+members[id]._skills[i].getClassName()+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+members[id]._skills[i].getClassName()+')" onmouseout="hideSkillInfo();"/>';
+	let c = g._allcharacters[id];
+	for(let i=0;i<c._skills.length;i++){
+		if(!c._skills[i].passive()){
+			div.innerHTML +=
+			'<img id="skill'+id+'_'+c._skills[i].getClassName()+'" onclick="g.useSkill(selectedChar,\''+c._skills[i].getClassName()+'\')" src="../ressources/skills/'+c._skills[i].getClassName()+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+c._skills[i].getClassName()+')" onmouseout="hideSkillInfo();"/>';
+		}else{
+			div.innerHTML +=
+			'<img id="skill'+id+'_'+c._skills[i].getClassName()+'" src="../ressources/skills/'+c._skills[i].getClassName()+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+c._skills[i].getClassName()+')" onmouseout="hideSkillInfo();"/>';
+		}
 		
 		
 	}
 	//Doit être a la fin, sinon la modification du innerHTML supprime les eventlistener
-	for(let i=0;i<members[id]._skills.length;i++){
-		let img = document.getElementById('skill'+id+'_'+members[id]._skills[i].getClassName() );
-		img.addEventListener("contextmenu", skillrightclick, true); 
+	for(let i=0;i<c._skills.length;i++){
+		if(!c._skills[i].passive()){
+			let img = document.getElementById('skill'+id+'_'+c._skills[i].getClassName() );
+			img.addEventListener("contextmenu", skillrightclick, true); 
+		}
 		//console.log(img);
 	}
 	
+	// console.log('Skills '+c.name);
+	// console.log(c._skills);
+	/*
+	//for(let i =0;i<skills.length;i++){
+	let availableSkills = []; 
+	for(let i =0;i<c._skills.length;i++){
+		let unlocked = c._skills[i].unlock();
+		for(let j=0;j<unlocked.length;j++){
+			if(c._skills.indexOf(unlocked[j]) < 0){
+				//First check
+				availableSkills.push(unlocked[j]);
+			}
+		}
+	}*/
 	
+	//On vérifie que TOUS les prerequis sont remplis
+	// let checkedAvailableSkills = availableSkills.slice(0);
+	let checkedAvailableSkills = skills.slice(0);
+	for(let i=0;i<checkedAvailableSkills.length;i++){
+		if( c._skills.indexOf(checkedAvailableSkills[i]) >= 0 ){
+			checkedAvailableSkills.splice(i,1);
+			i--;
+			continue;
+		}
+		let required = checkedAvailableSkills[i].require();
+		for(let j=0;j<required.length;j++){
+			if(c._skills.indexOf(required[j]) < 0 ){
+				checkedAvailableSkills.splice(i,1);
+				i--;
+				break;
+			}
+		}
+	}
+	
+	//On va chercher les skills qui vont être débloqués par ce qui peuvent être acquis
+	let almostAvailableSkills = [];
+	for(let i =0;i<checkedAvailableSkills.length;i++){
+		let unlocked = checkedAvailableSkills[i].unlock();
+		for(let j=0;j<unlocked.length;j++){
+			if(checkedAvailableSkills.indexOf(unlocked[j]) < 0){
+				almostAvailableSkills.push(unlocked[j]);
+			}
+		}
+	}
+	
+	//Et on vérifie aussi pour eux qu'on a presque les prerequis
+	let checkedAlmostAvailableSkills = almostAvailableSkills.slice(0);
+	for(let i=0;i<checkedAlmostAvailableSkills.length;i++){
+		if( c._skills.indexOf(checkedAlmostAvailableSkills[i]) >= 0 ){
+			checkedAlmostAvailableSkills.splice(i,1);
+			i--;
+			continue;
+		}
+		let required = checkedAlmostAvailableSkills[i].require();
+		for(let j=0;j<required.length;j++){
+			//On vérifie qu'il soit absent des skills dispo ET des skills acquis
+			if(c._skills.indexOf(required[j]) < 0 && checkedAvailableSkills.indexOf(required[j]) < 0){
+				checkedAlmostAvailableSkills.splice(i,1);
+				i--;
+				break;
+			}
+		}
+	}
+	
+
+	
+	let asdiv = document.getElementById('availableSkills'+c._id);
+	let aasdiv = document.getElementById('almostAvailableSkills'+c._id);
+	if(!asdiv || !aasdiv) return;
+	asdiv.innerHTML = '';
+	aasdiv.innerHTML = '';
+	for(let i=0;i<checkedAvailableSkills.length;i++){
+		asdiv.innerHTML +=
+		'<div class="skillrow">'+
+			//'<div class="skilllearn" onclick="learnSkill(\''+skillbook[i].getName()+'\')">Learn</div>'+
+			'<img style="cursor: pointer;" class="skillbookicon" onclick="learnSkill(\''+checkedAvailableSkills[i].getClassName()+'\')" src="../ressources/icons/skillbook.png"/>'+
+			'<img class="skillbookicon" src="../ressources/skills/'+checkedAvailableSkills[i].getClassName()+'.png" onmousemove="showSkillInfo(event,this,'+checkedAvailableSkills[i].getClassName()+')" onmouseout="hideSkillInfo();"/> '+
+			'<div class="skillname">'+l.text('skill'+checkedAvailableSkills[i].getClassName()+'name',1)+'</div>'+
+		'</div><br class="clearFloat"/>';
+	}
+	//console.log(checkedAvailableSkills);
+	for(let i=0;i<checkedAlmostAvailableSkills.length;i++){
+		aasdiv.innerHTML +=
+		'<div class="skillrow">'+
+			//'<div class="skilllearn" onclick="learnSkill(\''+skillbook[i].getName()+'\')">Learn</div>'+
+			'<img style="cursor: pointer;" class="skillbookicon" src="../ressources/icons/skillbookdisabled.png"/>'+
+			'<img class="skillbookicon" src="../ressources/skills/'+checkedAlmostAvailableSkills[i].getClassName()+'.png" onmousemove="showSkillInfo(event,this,'+checkedAlmostAvailableSkills[i].getClassName()+')" onmouseout="hideSkillInfo();"/> '+
+			'<div class="skillname">'+l.text('skill'+checkedAlmostAvailableSkills[i].getClassName()+'name',1)+'</div>'+
+		'</div><br class="clearFloat"/>';
+	}
+	/*
+	divSB.
+	*/
+	
+}
+
+//J'ai préféré dupliquer le code que de rajouter plein de flags en paramètres
+function showSkillsCharInn(c){
+	let div = document.getElementById('inncharskills'+c._id);
+	if(!div)return;
+	div.innerHTML = '';
+	for(let i=0;i<c._skills.length;i++){
+		div.innerHTML +=
+			'<img src="../ressources/skills/'+c._skills[i].getClassName()+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+c._skills[i].getClassName()+')" onmouseout="hideSkillInfo();"/>';
+	}	
 }
 
 
@@ -372,7 +639,7 @@ function addEnnemyDiv(m){
 	divE.className = 'divmonster';
 	divE.character = m;
 	divE.style = 'background-image:url("../ressources/textures/'+m.sprite+'.png");';
-	divE.setAttribute('onclick','target("ennemy",'+m._id+','+m.slot+')');
+	divE.setAttribute('onclick','target("ennemy",'+m.slot+')');
 	divE.validDropTarget = 1;
 	divE.setAttribute('ondrop','dropItem(event)');
 	divE.setAttribute('ondragover','allowDrop(event)');
@@ -391,6 +658,8 @@ function addItemDiv(item,target = 'inventoryWindow'){
 	e.id = 'item'+item._id;
 	e.draggable = 'true';
 	e.ondragstart = dragItem;
+	
+	e.style = 'background-color:'+item.backColor()+';';
 	e.item = item;
 	item._e = e;
 	e.innerHTML = 
@@ -457,7 +726,7 @@ function skillrightclick(event){
 	let x=event.clientX;
 	let y=event.clientY;
 	let posx = 'left:'+(x-200)+'px;';
-	let posy = 'top:'+(y-235)+'px;';
+	let posy = 'top:'+(y-260)+'px;';
 	
 	hideSkillInfo();
 	let data = this.id.substr(5).split('_');
@@ -466,11 +735,11 @@ function skillrightclick(event){
 		loadSkillInfo(skills[data[1]],'next');
 		nextskillloaded = skills[data[1]];
 	}
-
-	for(let i=0;i<members[data[0]].maxqskill;i++){
+	let c = g._allcharacters[data[0]];
+	for(let i=0;i<c.maxqskill;i++){
 		let e = document.getElementById('qskill0_'+i);
-		if(members[data[0]]._quickSkills[i]){
-			e.innerHTML = '<img onclick="" src="../ressources/skills/'+members[data[0]]._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+skills[members[data[0]]._quickSkills[i]]+',\'prev\')" onmouseout="hidePrevSkillInfo();"/>';
+		if(c._quickSkills[i]){
+			e.innerHTML = '<img onclick="" src="../ressources/skills/'+c._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+skills[c._quickSkills[i]]+',\'prev\')" onmouseout="hidePrevSkillInfo();"/>';
 		}else{
 			e.innerHTML = '';
 		}
@@ -486,7 +755,7 @@ function chargeqskill(slot){
 	
 	for(let i=0;i<selectedChar._quickSkills.length;i++){
 		if(!selectedChar._quickSkills[i]) continue;
-		document.getElementById('qskill'+selectedChar._id+'_'+i).innerHTML = '<img onclick="g.useSkill(selectedChar,targetedChar,\''+selectedChar._quickSkills[i]+'\')" src="../ressources/skills/'+selectedChar._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+selectedChar._quickSkills[i]+')" onmouseout="hideSkillInfo();"/>';
+		document.getElementById('qskill'+selectedChar._id+'_'+i).innerHTML = '<img onclick="g.useSkill(selectedChar,\''+selectedChar._quickSkills[i]+'\')" src="../ressources/skills/'+selectedChar._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+selectedChar._quickSkills[i]+')" onmouseout="hideSkillInfo();"/>';
 		//addItemDiv(c._quickSlots[i],'qslot'+c._id+'_'+i);
 	}
 	document.getElementById('changeqskill').style.display = 'none';
@@ -501,6 +770,7 @@ function itemdblclick(id){
 }
 
 function showSelectionItem(id){
+	
 	selectedItem = null;
 	let selected = document.getElementsByClassName('selecteditem');
 	for(let i =0;i<selected.length;i++){
@@ -519,8 +789,10 @@ function showDead(id){
 //A modifier
 	document.getElementById('charStats'+id).className += ' dead';
 	//document.getElementById('character').style='background-color:#900000;';
-	//members[id] = null;
 	currentMembers--;
+	if(!currentMembers){
+		document.getElementById('gameover').style.display = 'block';
+	}
 	/*
 	for(var i=1;i<ennemies.length;i++){
 		if(ennemies[i] != null){
@@ -585,7 +857,7 @@ function dropItem(ev){
 }
 
 function moveItem(item,target){
-	
+	if(!item) return;
 	let targetObj = null;
 	let targetSlot = 0;
 	let giveback = 0;
@@ -594,14 +866,14 @@ function moveItem(item,target){
 		if(!item.usable) return 0;
 		let targetChar = target.id.substr(5).split('_');
 		targetSlot = targetChar[1];
-		targetObj = members[targetChar[0]];
+		targetObj = g._allcharacters[targetChar[0]];
 		
 	}
 	else if(target.id.startsWith('equip') ){
 		if(!item.equipment) return 0;
 		let targetChar = target.id.substr(5).split('_');
 		targetSlot = Number(targetChar[1])+100;
-		targetObj = members[targetChar[0]];
+		targetObj = g._allcharacters[targetChar[0]];
 		if(targetObj.isCharacter && item.armorSlot != targetObj._equipSlotsType[targetChar[1]]){
 			console.log('wrong slot');
 			return 0;
@@ -617,7 +889,7 @@ function moveItem(item,target){
 	else if(target.id.startsWith('shop') ){
 		console.log('shop');
 		targetObj = target.shop;
-		if(targetObj.cash < Math.floor(item.price*0.5) ){
+		if(targetObj.cash < Math.floor(item.price*0.4) || item.unsellable){
 			console.log('not enough cash');
 			return;
 		}
@@ -682,6 +954,9 @@ function moveItem(item,target){
 var charSubWindowShowed = 'charStats';
 
 function charSelectSubWindow(wname,charid){
+	// console.log('charChildPanel'+charid);
+	// console.log(document.getElementById('charChildPanel'+charid));
+	if(!document.getElementById('charChildPanel'+charid)) return;
 	hideChildren('charChildPanel'+charid);
 	show(wname+charid);
 	charSubWindowShowed = wname;
@@ -692,6 +967,7 @@ function showEquipmentName(id,slot,name){
 }
 
 function removeEnnemyDiv(id,slot){
+	if(!document.getElementById('monster'+id)) return;
 	document.getElementById('ennemy'+slot+'card').removeChild(document.getElementById('monster'+id));
 }
 
@@ -718,6 +994,10 @@ function createSquareDiv(level,square){
 			}
 			else if(square[alldir[i]].startsWith('door')){
 				border[i] = '1px dashed #e68a00';
+				//border[i] = '1px dashed #4d2e00';
+			}
+			else if(square[alldir[i]].startsWith('grid')){
+				border[i] = '1px dashed #808080';
 				//border[i] = '1px dashed #4d2e00';
 			}
 		}
@@ -805,7 +1085,7 @@ function showInfo(event,elem){
 	let item = elem.parentNode.item;
 	for(let i=0;i<item._propertiesToDisplay.length;i++){
 		if(item._propertiesToDisplay[i][0] == 'name'){
-			txt += item[item._propertiesToDisplay[i][0]] + '<br/>';
+			txt += '<span style="color:'+item.foreColor()+';">'+item[item._propertiesToDisplay[i][0]]+'</span>' + '<br/>';
 		}else{
 			txt += item._propertiesToDisplay[i][1] + ' : ' + item[item._propertiesToDisplay[i][0]] + '<br/>';
 		}
@@ -845,39 +1125,48 @@ function showSkillInfo(event,elem,skill,target = 'main'){
 		e.style =  'display : block;'+ posx+posy;
 	}
 	
-	//if(loadedSkill != skill){
-	//  console.log('reload');
-		loadSkillInfo(skill,target);
-	//	loadedSkill = skill;
-	//}
-	
+
+	loadSkillInfo(skill,target);
+
 	//console.log(skill);
 }
 
 
-/*
-<img src="../ressources/skills/Attack.png" class="skillicon" style="float: left;" id="iconmaininfo"/>
-	<div class="containerVCenter">
-		<span class="verticalalign"  id="namemaininfo">Immolation par l'archange de la mort</span>
-	</div>
-	<hr class="clearFloat"/>
-	<span class="smalldesc"  id="descmaininfo">
-	ça utilise un objet. c'est cool et assez utile (comme les objets). Je ne sais pas quoi écrire donc je remplis de plein de texte inutile. c'est pour tester les descriptions longues.</span><br/>
-	Puissance : <span class="smalldesc"  id="powermaininfo">9000</span><br/>
-	<img src="../ressources/icons/endurance.png" class="smallicon"/><span class="smallleft" id="endurancemaininfo">100</span> 
-	<img src="../ressources/icons/mana.png" class="smallicon"/><span class="smallleft" id="manamaininfo">100</span>
-	<img src="../ressources/icons/mind.png" class="smallicon"/> <span class="smallleft" id="mindmaininfo">0</span>
-	<img src="../ressources/icons/health.png" class="smallicon"/><span class="smallleft"  id="healthmaininfo">0</span>
-*/
+
 function loadSkillInfo(skill,target){
 	document.getElementById('icon'+target+'info').setAttribute('src','../ressources/skills/'+skill.getClassName()+'.png');
-	document.getElementById('name'+target+'info').innerHTML = l.text('skill'+skill.getClassName()+'name');
-	document.getElementById('desc'+target+'info').innerHTML = l.text('skill'+skill.getClassName()+'desc');
+	document.getElementById('name'+target+'info').innerHTML = l.text('skill'+skill.getClassName()+'name',1);
+	document.getElementById('desc'+target+'info').innerHTML = l.text('skill'+skill.getClassName()+'desc',1);
 	document.getElementById('power'+target+'info').innerHTML = skill.potent();
 	document.getElementById('endurance'+target+'info').innerHTML = skill.getEnduranceConsumption();
 	document.getElementById('mana'+target+'info').innerHTML = skill.getManaConsumption();
 	document.getElementById('mind'+target+'info').innerHTML = skill.getMindConsumption();
 	document.getElementById('health'+target+'info').innerHTML = skill.getHealthConsumption();
+	document.getElementById('active'+target+'info').style.display = 'inline';
+	if(skill.passive()){
+		document.getElementById('type'+target+'info').innerHTML = 'Passif';
+		document.getElementById('active'+target+'info').style.display = 'none';
+	}else if(skill.offensive()){
+		document.getElementById('type'+target+'info').innerHTML = 'Offensif';
+	}else{
+		document.getElementById('type'+target+'info').innerHTML = 'Défensif';
+	}
+	if(skill.require()){
+		
+		/*
+		
+		*/
+		
+		document.getElementById('reqwrap'+target+'info').style.display = 'block';
+		document.getElementById('reqwrap'+target+'info').innerHTML = '';
+		let required = skill.require();
+		for(let i=0;i<required.length;i++){
+			document.getElementById('reqwrap'+target+'info').innerHTML += 'Req. <img class="smallicon" style="float:none" src="../ressources/skills/'+required[i].getClassName()+'.png"/>&nbsp;'+l.text('skill'+required[i].getClassName()+'name',1)+'<br/>';
+		}
+	}else{
+		document.getElementById('reqwrap'+target+'info').style.display = 'none';
+		//reqskilliconprevinfo
+	}
 }
 
 function hideSkillInfo(){
@@ -894,6 +1183,9 @@ function hidePrevSkillInfo(){
 	document.getElementById('mana'+target+'info').innerHTML = 0;
 	document.getElementById('mind'+target+'info').innerHTML = 0;
 	document.getElementById('health'+target+'info').innerHTML = 0;
+	document.getElementById('type'+target+'info').innerHTML = '';
+	document.getElementById('active'+target+'info').style.display = 'none';
+	document.getElementById('reqwrap'+target+'info').style.display = 'none';
 }
 
 function showMap(level){
@@ -1032,7 +1324,8 @@ function startBattle(group){
 		ennemies[m._id] = m;
 		ennemyCards[m.slot] = m;
 		currentEnnemies++;
-		m.doAction();
+		setTimeout('doAction("m",'+m._id+')',m.timeAttack*(rand(3,10)/10) );
+		//m.doAction();
 		addEnnemyDiv(m);
 	}
 	currentGroup = group;
@@ -1107,7 +1400,22 @@ function clearOverWindow(){
 	document.getElementById('overWindow').innerHTML = '';
 }
 
+function addEOT(eot){
+	if(eot.target.isCharacter){
+		if(!document.getElementById('eot'+eot.target._id)) return;
+		document.getElementById('eot'+eot.target._id).innerHTML += '<img class="mediumicon" src="../ressources/skills/'+eot.skill.getClassName()+'.png" id="eoteffect'+eot._id+'"/>';
+	}
+}
 
+function removeEOT(eot){
+	if(!document.getElementById('eoteffect'+eot._id))return;
+	document.getElementById('eoteffect'+eot._id).parentNode.removeChild(document.getElementById('eoteffect'+eot._id));
+	if(window.eot[eot._id]){
+		delete window.eot[eot._id];
+		eot.over();
+	}
+	
+}
 
 
 

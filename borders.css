@@ -1,0 +1,154 @@
+
+/*Borders */
+.border{
+	position:absolute;
+	z-index:5;
+}
+#topleftborder{
+	width:23px;
+	height:23px;
+	top:0px;
+	left:0px;
+	background-image:url("../ressources/gui/topleftborder.png");
+}
+#toprightborder{
+	width:23px;
+	height:23px;
+	top:0px;
+	left:1010px;
+	background-image:url("../ressources/gui/toprightborder.png");
+}
+#topborder1{
+	width:578px;
+	height:15px;
+	top:0px;
+	left:23px;
+	background-image:url("../ressources/gui/topborder.png");
+}
+#topcrossborder{
+	width:31px;
+	height:23px;
+	top:0px;
+	left:601px;
+	background-image:url("../ressources/gui/topcrossborder.png");
+}
+#topborder2{
+	width:378px;
+	height:15px;
+	top:0px;
+	left:632px;
+	background-image:url("../ressources/gui/topborder.png");
+}
+#leftborder1{
+	width:15px;
+	height:378px;
+	top:23px;
+	left:0px;
+	background-image:url("../ressources/gui/leftborder.png");
+}
+#leftcrossborder{
+	width:23px;
+	height:31px;
+	top:401px;
+	left:0px;
+	background-image:url("../ressources/gui/leftcrossborder.png");
+}
+#leftborder2{
+	width:15px;
+	height:378px;
+	top:432px;
+	left:0px;
+	background-image:url("../ressources/gui/leftborder.png");
+}
+#bottomleftborder{
+	width:23px;
+	height:23px;
+	top:810px;
+	left:0px;
+	background-image:url("../ressources/gui/bottomleftborder.png");
+}
+#centerhorizontalborder1{
+	width:378px;
+	height:15px;
+	top:409px;
+	left:632px;
+	background-image:url("../ressources/gui/topborder.png");
+}
+#centerhorizontalborder2{
+	width:578px;
+	height:15px;
+	top:409px;
+	left:23px;
+	background-image:url("../ressources/gui/topborder.png");
+}
+#bottomborder1{
+	width:378px;
+	height:15px;
+	top:818px;
+	left:632px;
+	background-image:url("../ressources/gui/bottomborder.png");
+}
+#bottomborder2{
+	width:578px;
+	height:15px;
+	top:818px;
+	left:23px;
+	background-image:url("../ressources/gui/bottomborder.png");
+}
+#centerverticalborder1{
+	width:15px;
+	height:378px;
+	top:23px;
+	left:609px;
+	background-image:url("../ressources/gui/leftborder.png");
+}
+#centerverticalborder2{
+	width:15px;
+	height:378px;
+	top:432px;
+	left:609px;
+	background-image:url("../ressources/gui/leftborder.png");
+}
+#rightborder1{
+	width:15px;
+	height:378px;
+	top:23px;
+	left:1018px;
+	background-image:url("../ressources/gui/leftborder.png");
+}
+#rightborder2{
+	width:15px;
+	height:378px;
+	top:432px;
+	left:1018px;
+	background-image:url("../ressources/gui/leftborder.png");
+}
+#bottomcrossborder{
+	width:31px;
+	height:23px;
+	top:810px;
+	left:601px;
+	background-image:url("../ressources/gui/bottomcrossborder.png");
+}
+#rightcrossborder{
+	width:23px;
+	height:31px;
+	top:401px;
+	left:1010px;
+	background-image:url("../ressources/gui/rightcrossborder.png");
+}
+#bottomrightborder{
+	width:23px;
+	height:23px;
+	top:810px;
+	left:1010px;
+	background-image:url("../ressources/gui/bottomrightborder.png");
+}
+#centercrossborder{
+	width:31px;
+	height:31px;
+	top:401px;
+	left:601px;
+	background-image:url("../ressources/gui/centercrossborder.png");
+}
+

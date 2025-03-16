@@ -1,12 +1,12 @@
 class Character extends Creature{
-	constructor(name,id,game) {
+	constructor(name,id,game){
 		super(name,id,game);
-		
+		this.hiredtimes = 0;
 		this.isCharacter = 1;
 		this.exp = 0;
 		this.totalexp = 0;
-		this.skillpoints = 1;
-		this.points = 21;
+		this.skillpoints = 3;
+		this.points = 60;
 		
 		this.dead = 0;
 		this.regeneration = 1;
@@ -26,6 +26,10 @@ class Character extends Creature{
 		
 		this._quickSkills = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
 		this.maxqskill = 18;
+		this.inTeam = 0;
+		this.baseprice = 200;
+		this.moral = 2;
+		this.creaturetype = 'human';
 	}
 	
 	initChar(){
@@ -158,14 +162,59 @@ class Character extends Creature{
 		if(htmlout){
 			htmlout.innerHTML = this[prop];
 		}
+		 htmlout = document.getElementById(prop+this._id+'_2');
+		if(htmlout){
+			htmlout.innerHTML = this[prop];
+		}
+	}
+	
+	getMoral(){
+		if(this.moral <= 0){
+			//really happy
+			return 0;
+		}
+		else if(this.moral <= 1.2){
+			//pretty happy
+			return 1;
+		}
+		else if(this.moral <= 2.7){
+			//neutral
+			return 2;
+		}
+		else if(this.moral <= 4){
+			//unhappy
+			return 3;
+		}
+		else{
+			//really unhappy
+			return 4;
+		}
+	}
+
+	modMoral(d){
+		this.moral += d;
+		this._price = Math.floor(Math.max(this.moral,0) * this.baseprice * (this.level+2)/3 * 4/(4+this.hiredtimes) );
+		this.showProperty('_price');
+		let smile = document.getElementById('smile'+this._id);
+		let smile2 = document.getElementById('smile'+this._id+'_2');
+		if(smile){
+			smile.setAttribute('src','../ressources/icons/moral'+this.getMoral()+'.png');
+		}
+
+		if(smile2){
+			smile2.setAttribute('src','../ressources/icons/moral'+this.getMoral()+'.png');
+		}
 	}
 	
 	showProperties(){
+		this.modMoral(0);
+
 		let keys = Object.keys(this);
 		for(let i = 0;i<keys.length;i++){
 			this.showProperty(keys[i]);
 		}
 		showSkillsChar(this._id);
+		showSkillsCharInn(this);
 		showBars(this);
 	}
 	
@@ -231,30 +280,22 @@ class Character extends Creature{
 	}
 	
 	
-	modStat(stat,value){
-		let stats = ['health','endurance','mana','mind'];
-		if(stats.indexOf(stat) != -1){
-			this[stat] += value;
-			if(this[stat] > this['max'+stat]){
-				this[stat] = this['max'+stat];
-			}
-			if(this[stat] < 0){
-				this[stat] = 0;
-			}
-			
-			this.showProperty(stat);
-			showBars(this);
-			return 1;
-
-		}
-		return -1;
-	}
+	
 	
 	computeDeath(attacker){
-		super.computeDeath(attacker);
-		this.regeneration = 0;
-		showDead(this._id);
-		console.log('You are dead');
+		if(!this.dead){
+			super.computeDeath(attacker);
+			this.regeneration = 0;
+			showDead(this._id);
+			
+			this.modMoral(+0.5);
+			for(let i=0;i<g._partyMembers.length;i++){
+				if(!g._partyMembers[i]) continue;
+				g._partyMembers[i].modMoral(+0.04);
+			}
+			
+			console.log('You are dead');
+		}
 	}
 	
 	resurrect(){
@@ -266,7 +307,6 @@ class Character extends Creature{
 	}
 	
 	removeItem(item){
-		console.log('character removeitem');
 		if(item.usable && this._quickSlots.indexOf(item) > -1){
 			this._quickSlots[this._quickSlots.indexOf(item)] = null;
 			return 1;
@@ -332,6 +372,11 @@ class Character extends Creature{
 			this.level ++;
 			this.points += 30 + Math.floor(this.level/10);
 			this.skillpoints += 1;
+			this.modMoral(-0.3);
+			for(let i=0;i<g._partyMembers.length;i++){
+				if(!g._partyMembers[i]) continue;
+				g._partyMembers[i].modMoral(-0.03);
+			}
 			this.calculateStats();
 			this.showProperties();
 			return 1;
@@ -339,12 +384,10 @@ class Character extends Creature{
 		return 0;
 	}
 	
-	crit(){
-		//luck > 285 => crit 100% (?a ne doit jamais arriver)
-		return Math.random() * 300.0 < 15+this.luck;
-	}
+	
 	
 	learnSkill(skill){
+		if(!skill)return;
 		if(this._skills.indexOf(skill) != -1){
 			console.log('skill already learned');
 			return;
@@ -357,24 +400,26 @@ class Character extends Creature{
 		this._skills[skill.getClassName()] = skill;
 		this.skillsLearned += skill.getClassName()+',';
 		this.skillpoints--;
+		skill.learn(this);
 		this.showProperties();
 		updateprio(this._id,-1);
 	}
 	
 	loadSkills(){
-		console.log('loading skills for '+this.name);
+		// console.log('loading skills for '+this.name);
 		this._skills = [];
 		let listNames = this.skillsLearned.split(',');
 		for(let i=0;i<listNames.length;i++){
 			if(listNames[i].length <= 0) continue;
-			console.log('-adding '+listNames[i]);
+			// console.log('-adding '+listNames[i]);
 			this._skills[this._skills.length] = skills[listNames[i]];
 			this._skills[listNames[i]] = skills[listNames[i]];
 		}
 	}
 	
 	doAction(){
-		//console.log('doAction Start');
+		// console.log('doAction Start');
+		if(!this.inTeam) return;
 		let ok = 0;
 		for(let i=0;i<this._prio.length;i++){
 			//console.log('Row 1');
@@ -419,8 +464,8 @@ class Character extends Creature{
 					targetcond = [this];
 					break;
 			}
-			//console.log('targetcond=');
-			//console.log(targetcond);
+			// console.log('targetcond=');
+			// console.log(targetcond);
 			
 			ok = 0;
 			let stat = '';
@@ -477,12 +522,13 @@ class Character extends Creature{
 			
 			let curtarget = null;
 			for(let j=0;j<targetcond.length;j++){
+				if(!targetcond[j])continue;
 				let okthis = 0;
 				let prop = targetcond[j][stat];
 				if(stat == 'health' || stat == 'mana' || stat == 'endurance' || stat=='mind'){
 					prop = targetcond[j][stat]/targetcond[j]['max'+stat];
 				}
-				//console.log('testing '+prop+comp+treshold);
+				// console.log('testing '+prop+comp+treshold);
 				if( eval( prop+comp+treshold )){
 					okthis = 1;
 				}
@@ -499,9 +545,10 @@ class Character extends Creature{
 			}
 			
 			if(!ok){
+				// console.log('halt');
 				continue;
 			}
-			
+
 			switch(this._prio[i][4]){
 				case '':
 					ok = 0;
@@ -537,6 +584,7 @@ class Character extends Creature{
 			//console.log(curtarget);
 			if(!curtarget || !ok){
 				ok = 0;
+				// console.log('halt');
 				continue;
 			}
 			
@@ -544,18 +592,22 @@ class Character extends Creature{
 				case '':
 					ok = 0;
 					break;
+				/*
 				case 'Attack':
 					g.computeAttack(this,curtarget);
 					ok = 1;
-					break;
+					break;*/
 				case 'Nothing':
 					ok = 1;
 					break;
 				default:
-					if( skills[this._prio[i][3]].possible(this) ){
-						g.useSkill(this,curtarget,this._prio[i][3]);
+				//console.log(skills[this._prio[i][3]]);
+					if( skills[this._prio[i][3]].possible(this,curtarget) ){
+						//console.log('lets do this');
+						g.useSkill(this,this._prio[i][3],curtarget);
 						ok = 1;
 					}else{
+						//console.log('impossible');
 						ok = 0;
 					}
 			
@@ -574,7 +626,15 @@ class Character extends Creature{
 	}
 	
 	
-	
+	switchprio(m,n){
+		if(m >= 0 && n >= 0 && m < this._prio.length && n < this._prio.length){
+			let o = this._prio[n];
+			this._prio[n] = this._prio[m];
+			this._prio[m] = o;
+			return 1;
+		}
+		return 0;
+	}
 	
 	init(){
 		console.log('Initialize');

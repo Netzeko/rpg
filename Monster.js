@@ -1,12 +1,19 @@
 class Monster extends Creature{
-	constructor(name,id,game) {
+	constructor(name,id,game,cat) {
 		super(name,id,game);
 		
 		this.isMonster = 1;
 		this.exp = 70;
-
-		this.upToPartyLevel();
+		
+		
+		
+		this.cat = cat;
+		//this.upToPartyLevel();
 		this.calculateStats();
+		this.creaturetype = 'demon';
+		this._loot = [];
+
+		this.initLoot();
 	}
 	
 	upToPartyLevel(){
@@ -41,6 +48,8 @@ class Monster extends Creature{
 		
 	}
 	
+	initLoot(){}
+	
 	lowestAttribute(){
 		//maybe ?
 	}
@@ -59,31 +68,14 @@ class Monster extends Creature{
 		}
 	}
 	
-	modStat(stat,value){
-		let stats = ['health','endurance','mana','mind'];
-		if(stats.indexOf(stat) != -1){
-			this[stat] += value;
-			if(this[stat] > this['max'+stat]){
-				this[stat] = this['max'+stat];
-			}
-			if(this[stat] < 0){
-				this[stat] = 0;
-			}
-			
-			this.showProperty(stat);
-			showBars(this);
-			return 1;
-
-		}
-		return -1;
-	}
+	
 	
 	doAction(){
 		
 		let c = randomCharacter();
 		if(c){
 			//console.log(this.name+this._id+' attack '+c.name);
-			s.computeAttack(this,c);
+			g.computeAttack(this,c);
 		}else{
 			console.log(this.name+' : i\'m hungry !');
 		}
@@ -91,10 +83,22 @@ class Monster extends Creature{
 	}
 	
 	computeDeath(attacker){
-		super.computeDeath(attacker);
+		if( !super.computeDeath(attacker)) return 0;
 		//Todo:gerer si un monstre en tue un autre
-		s.giveExpToAll(this.exp);
-		
+		if(!attacker.isMonster){
+			g.giveExpToAll(this.exp);
+			
+			//addItemFromName(this.itemname);
+
+		}
+		for(let i=0;i<this._loot.length;i++){
+			//console.log(this._loot[i]);
+			let chance = this._loot[i][1] * this.cat;
+			let r = Math.random();
+			if(r < chance){
+				addItemFromName(this._loot[i][0]);
+			}
+		}
 		clearTimeout(this.nextAttack);
 		removeEnnemy(this._id,this.slot);
 		return 2;
@@ -104,7 +108,7 @@ class Monster extends Creature{
 
 class Nightmare extends Monster{
 	constructor(id,game,cat) {
-		super('Nightmare',id,game);
+		super('Nightmare',id,game,cat);
 		if(cat == 4){
 			this.name += ' Champion';
 			this.sprite = 'nightmarechampion';
@@ -115,10 +119,9 @@ class Nightmare extends Monster{
 			this.sprite = 'nightmare';
 		}
 		
-		this.cat = cat;
 		this.exp = 50 * cat;
 
-		this.strength = 8;
+		this.strength = 6;
 		this.constitution = 4+4*cat;
 		this.dexterity = 10+2*cat;
 		this.perception = 10+4*cat;
@@ -129,13 +132,36 @@ class Nightmare extends Monster{
 		
 		this.weaponAttack = 5+2*cat;
 		this.armor = 2*cat;
-		
+		this.creaturetype = 'demon';
 		this.calculateStats();
+		
+		
+		
 	}
-	
 	static staticClassName(){
 		return 'Nightmare';
 	}
+	
+	initLoot(){
+		this._loot.push(['Tooth',0.4]);
+		this._loot.push(['Tooth',0.3]);
+		this._loot.push(['Wing',0.1]);
+		this._loot.push(['Cristaldark',0.004]);
+	}
+	
+	
+	doAction(){
+		
+		let c = randomCharacter();
+		if(c){
+			//console.log(this.name+this._id+' attack '+c.name);
+			Bite.use(this,c);
+		}else{
+			console.log(this.name+' fly around in circle.');
+		}
+		setTimeout('doAction("m",'+this._id+')',this.timeAttack);
+	}
+	
 	
 }
 

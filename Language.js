@@ -100,7 +100,7 @@ class FrenchLanguage{
 		this.var_level_underground = 'sous-terrains';
 		this.var_level_sewers = 'égouts';
 
-		this.var_wantsomepotion = 'voulez-vous des potions ?';
+		this.var_wantsomepotion = 'voulez-vous quelques potions ?';
 		this.var_takecare = 'prenez soin de vous.';
 		this.var_ineedmoney = 'quelques pièces pour un pauvre mendiant';
 		this.var_give50 = 'donner 50 pièces d\'or';
@@ -113,6 +113,45 @@ class FrenchLanguage{
 		this.var_skillAttackdesc = 'l\'attaque physique de base';
 		this.var_skillUseItemname = 'utiliser objet';
 		this.var_skillUseItemdesc = 'utilise l\'objet sélectionné';
+		this.var_skillHealname = 'soin';
+		this.var_skillHealdesc = 'restaure un peu la santé';
+		this.var_skillFireboltname = 'flammèche';
+		this.var_skillFireboltdesc = 'inflige de faibles dégâts de feu';
+		this.var_skillBurnname = 'brulure';
+		this.var_skillBurndesc = 'brule l\'ennemi pendant quelques secondes';
+		this.var_skillFirePillarname = 'colonne de feu';
+		this.var_skillFirePillardesc = 'immole la cible dans une colonne enflammée et la brule';
+		this.var_skillFireBarriername = 'barrière de feu';
+		this.var_skillFireBarrierdesc = 'réduit la puissance des sorts de feu dirigés contre vous';
+		this.var_skillFireBasicsname = 'apprentissage du feu';
+		this.var_skillFireBasicsdesc = 'permet de débloquer les sorts de feu basiques';
+		this.var_skillFireAdvancedname = 'manipulation du feu';
+		this.var_skillFireAdvanceddesc = 'permet de débloquer les sorts de feu avancés';
+		this.var_skillEndoFirename = 'arme enflammée';
+		this.var_skillEndoFiredesc = 'ajoute des dégâts de feu aux attaques physiques';
+		this.var_skillFireballname = 'boule de feu';
+		this.var_skillFireballdesc = 'un projectile de feu explosant au contact';
+		this.var_skillFireRainname = 'pluie de feu';
+		this.var_skillFireRaindesc = 'une pluie de projectiles enflammé s\'abat sur les ennemis';
+		this.var_skillExplosionname = 'explosion';
+		this.var_skillExplosiondesc = 'consomme tout le mana de l\'utilisateur pour produire une formidable explosion touchant tous les ennemis';
+		
+		this.var_buttonstatus = 'statut';
+		this.var_buttonequip = 'équipement';
+		this.var_buttonorders = 'instructions';
+		this.var_buttonskills = 'compétences';
+
+		this.var_houseinn = 'auberge';
+		this.var_housechurch = 'église';
+		this.var_housealchemist = 'alchimiste';
+		this.var_houseblacksmith = 'forgeron';
+		this.var_backtovillage = 'retour au village';
+		this.var_resurrect = 'ressusciter';
+		this.var_save = 'sauvegarder';
+		this.var_accessgounderground = 'explorer les sous-terrains';
+		
+		this.var_hire = 'embaucher';
+		this.var_dismiss = 'renvoyer';
 	}
 }
 

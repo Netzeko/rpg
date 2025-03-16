@@ -12,10 +12,92 @@ class DungeonScene{
 		this._boxgeometryflat = new THREE.BoxGeometry( 1, 0.002, 1 );
 		this._boxgeometryflatdiag = new THREE.BoxGeometry( Math.sqrt(2), 0.002, 1 );
 		this._boxgeometryslab = new THREE.BoxGeometry( 0.2, 0.1, 0.996 );
+		this._boxgeometrytrapeze = this.createTrapeze();
+		
+		
 		this._map = null;
 		this._entitiesMovement = [];
 	}
 	
+	createTrapeze(){
+		
+		let geometry = new THREE.Geometry();
+		geometry.vertices.push(
+			new THREE.Vector3( -0.5,  0.5, -0.5 ),
+			new THREE.Vector3( -0.5, -0.5, -0.5 ),
+			new THREE.Vector3(  0.5, -0.5, -0.5 ),
+			new THREE.Vector3( -0.5,  0.5, +0.5 ),
+			new THREE.Vector3( -0.5, -0.5, +0.5 ),
+			new THREE.Vector3(  0.5, -0.5, +0.5 )
+		);
+		geometry.faces.push( new THREE.Face3( 2, 1, 0 ) );
+		geometry.faces.push( new THREE.Face3( 3, 4, 5 ) );
+		geometry.faces.push( new THREE.Face3( 2, 4, 1 ) );//en bas a gauchefond
+		geometry.faces.push( new THREE.Face3( 5, 4, 2 ) );//en bas a  droitedevant
+		geometry.faces.push( new THREE.Face3( 0, 1, 3 ) );//cote hautfond
+		geometry.faces.push( new THREE.Face3( 1, 4, 3 ) );//cote basdevant
+		geometry.faces.push( new THREE.Face3( 5, 2, 0 ) );//face penchee 
+		geometry.faces.push( new THREE.Face3( 3, 5, 0 ) );//face penchee 
+		geometry.computeBoundingBox();
+		/**/
+		let max = geometry.boundingBox.max,
+			min = geometry.boundingBox.min;
+		let offset = new THREE.Vector2(0 - min.x, 0 - min.y);
+		let range = new THREE.Vector2(max.x - min.x, max.y - min.y);
+		let faces = geometry.faces;
+
+		geometry.faceVertexUvs[0] = [];
+		for (let i = 0; i < 2 ; i++) {
+
+				let v1 = geometry.vertices[faces[i].a], 
+						v2 = geometry.vertices[faces[i].b], 
+						v3 = geometry.vertices[faces[i].c];
+				geometry.faceVertexUvs[0].push([
+						new THREE.Vector2((v1.x + offset.x)/range.x ,(v1.y + offset.y)/range.y),
+						new THREE.Vector2((v2.x + offset.x)/range.x ,(v2.y + offset.y)/range.y),
+						new THREE.Vector2((v3.x + offset.x)/range.x ,(v3.y + offset.y)/range.y)
+				]);
+		}
+		//Base
+		geometry.faceVertexUvs[0].push([
+			new THREE.Vector2(1,1),//2
+			new THREE.Vector2(0,0),//4
+			new THREE.Vector2(1,0) //1
+		]);
+		geometry.faceVertexUvs[0].push([
+			new THREE.Vector2(0,1),//5
+			new THREE.Vector2(0,0),//4
+			new THREE.Vector2(1,1) //2
+		]);
+		
+		//Dos
+		geometry.faceVertexUvs[0].push([
+			new THREE.Vector2(0,1),
+			new THREE.Vector2(0,0),
+			new THREE.Vector2(1,1)
+		]);
+		geometry.faceVertexUvs[0].push([
+			new THREE.Vector2(0,0),
+			new THREE.Vector2(1,0),
+			new THREE.Vector2(1,1)
+		]);
+		
+		
+		//Face penchée
+		geometry.faceVertexUvs[0].push([
+			new THREE.Vector2(0,0),
+			new THREE.Vector2(1,0),
+			new THREE.Vector2(1,1)
+		]);
+		geometry.faceVertexUvs[0].push([
+			new THREE.Vector2(0,1),
+			new THREE.Vector2(0,0),
+			new THREE.Vector2(1,1)
+		]);
+		
+		geometry.uvsNeedUpdate = true;
+		return geometry;
+	}
 	
 	addMaterial(matname,type='texture',transparent = false){
 		this._waiting++;
@@ -269,14 +351,15 @@ class DungeonScene{
 		clearChildren(document.getElementById('dungeonView'));
 		document.getElementById('dungeonView').appendChild( this._renderer.domElement );
 		this.actualizePosition();
-		requestAnimationFrame(animate);
+		setTimeout('requestAnimationFrame(animate)',7);
+		//requestAnimationFrame(animate);
 
 	}
 	
 	actualizePosition(){
 		//console.log('actualize');
-		let d = new Date();
-    let n = d.getTime();
+		// let d = new Date();
+    // let n = d.getTime();
 
 		if(!this._map) return;
 		
@@ -306,7 +389,7 @@ class DungeonScene{
 		//console.log('received data : '+this.fromCoord+' '+this.fromLookat+' '+this.fromTime+' '+this.toCoord+' '+this.toLookat+' '+this.toTime+' ');
 		this.framenumber = 0;
 		this.playeranimation = 1;
-
+console.log('Movement initiated start='+fromTime+' end='+toTime);
 	}
 	
 	addEntityMovement(e,fromCoord,fromTime,toCoord,toTime){
@@ -317,6 +400,7 @@ class DungeonScene{
     let curTime = new Date().getTime();
 		if(this.playeranimation && curTime > this.toTime){
 			//console.log(this.framenumber+' frames ('+(this.framenumber/((this.toTime-this.fromTime)/1000))+' ips)')
+			console.log('Movement ended cur='+curTime+' end='+this.toTime);
 			this.actualizePosition();
 			g._currentMap.animationFinish();
 			inAnimation = 0;

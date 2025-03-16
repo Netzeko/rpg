@@ -1,5 +1,5 @@
 var saveData = [];
-var listSkin = ['1','2']
+var listSkin = ['1','2','3','4']
 function init(){
 	for(let i=1;i<=6;i++){
 		let dataString = getCookie('slot'+i);
@@ -40,7 +40,8 @@ function init(){
 				'<div class="saveinfowrapper"><div class="saveinfo"><img src="../ressources/icons/level.png" class="mediumicon"/> <span class="mediumtext">'+saveData[i].level+'</span> '+
 				'<img src="../ressources/icons/time.png" class="mediumicon"/> <span class="mediumtext">'+('00' + hours).slice(-2)+':'+('00' + minutes).slice(-2)+'</span> </div></div>'+
 				'<br/>'+
-				'<div class="buttonVillage" style="position:relative;float:right" onclick="load('+i+')">Load</div>';
+				'<div class="buttonVillage" style="position:relative;float:right;width:110px;" onclick="load('+i+')">Load</div>'+
+				'<div class="buttonVillage" style="position:relative;float:right;width:110px;" onclick="if(confirm(\'Are you sure ?\')){eraseSave('+i+');}">Erase</div>';
 			document.getElementById('savedata').appendChild(ds);
 			
 		}else{
@@ -109,6 +110,25 @@ function changeSavename(slot){
 	if(!edited[slot]){
 		document.getElementById('button'+slot).innerHTML='<input type="text" style="background-color:rgba(0, 0, 0, 0.5);color:white;" id="savename'+slot+'"/>';
 		edited[slot] = 1;
+	}
+}
+
+function eraseSave(slot){
+	for(var i = 0; i < localStorage.length; i++) {
+		let str = localStorage.key(i);
+		if(str.startsWith('save'+slot)){
+			console.log('erase '+localStorage.key(i));
+			delete localStorage[localStorage.key(i)];
+		}
+		delete localStorage['slot'+slot];
+		location.reload();
+		/*
+    localStorage.getItem(localStorage.key(i)));
+
+    if(obj.ID == ID_Needed) {
+        console.log(obj);
+        break;
+    }*/
 	}
 }
 

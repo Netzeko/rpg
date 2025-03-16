@@ -154,6 +154,31 @@ class Square{
 		}
 	}
 	
+	setGround(t){
+		this.ground = t;
+		return this;
+	}
+	setCeiling(t){
+		this.ceiling = t;
+		return this;
+	}
+	setNorth(t){
+		this.north = t;
+		return this;
+	}
+	setSouth(t){
+		this.south = t;
+		return this;
+	}
+	setEast(t){
+		this.east = t;
+		return this;
+	}
+	setWest(t){
+		this.west = t;
+		return this;
+	}
+	
 	getClassName(){
 		return 'Square';
 	}
@@ -263,6 +288,48 @@ class Stairs extends Square{
 	getClassName(){ return 'Stairs'; }
 	static staticClassName(){ return 'Stairs'; }
 }
+
+class Void extends Square{
+	constructor(x,y,z,level){
+		super(x,y,z,level);
+		//this.void = 1;
+		this.ground = '';
+	}
+
+	/*
+	enter(dir){
+		super.enter(dir);//at the beginning
+		//console.log('entering stairs');
+		return 1;
+	}
+	*/
+	
+	entered(){
+		
+		super.entered();//at the end
+		//fall
+		// if(g._inBattle || !g._currentMap || inAnimation) return;
+		setTimeout(playerFalling,1);
+		return 1;
+	}
+	
+	exit(dir){
+		super.exit(dir);
+		
+		return 1;
+	}
+	
+	exited(){
+		super.exited();
+	}
+	
+	
+	
+	getClassName(){ return 'Void'; }
+	static staticClassName(){ return 'Void'; }
+}
+
 registerClass(Square);
 registerClass(TeleportHome);
 registerClass(Stairs);
+registerClass(Void);
