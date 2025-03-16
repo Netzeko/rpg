@@ -655,12 +655,50 @@ class Underground extends Level{
 		this.addSquare(4,13,5);
 		this.addSquare(5,13,5);
 		
+		
+		let her = new NPC(g._nextEntityId++,'testnpc','sww1');
+		let acts = [];
+		acts.push(new GiveObject(her,'HealPotion'));
+		acts.push(new GiveObject(her,'HealPotion'));
+		acts.push(new GiveObject(her,'HealPotion'));
+		her.addState(1,'wantsomepotion');
+		her.addStateOption(1,'button',['yes',20,20],acts ,2);
+		her.addStateOption(1,'button',['no',400,20], [] ,2);
+		
+		her.addStateOption(1,'dialog',['yes'],acts ,2);
+		her.addStateOption(1,'dialog',['no'], [] ,2);
+		her.addState(2,'takecare');
+		this._entities.push(her);
+		her._square = this.getSquare(3,3,1);
+		this.getSquare(3,3,1)._entity = her;
+		
+		let beggar = new NPC(g._nextEntityId++,'testnpc2','beggar');
+		acts = [];
+		acts.push(new GiveGold(beggar,-50));
+		acts.push(new GiveExp(beggar,500));
+		beggar.addState(1,'ineedmoney');
+		beggar.addStateOption(1,'button',['give50',20,20],acts ,2);
+		beggar.addStateOption(1,'needitem',['',380,240],[new GiveExp(beggar,10)] ,2);
+		beggar.neededitem = 'HealPotion';
+		beggar.addState(2,'thankyou');
+		beggar.addStateOption(2,'dialog',['needsomething'], [] ,1);
+		
+		this.addSquare(2,1,1);
+		this._entities.push(beggar);
+		beggar._square = this.getSquare(2,1,1);
+		this.getSquare(2,1,1)._entity = beggar;
+		
+		/*
+		acts.push(new GiveGold(her,-50));
+	acts.push(new GiveExp(her,500));
+		*/
+		/*
 		let testsp = new Entity(g._nextEntityId++);
 		this._entities.push(testsp);
 		testsp._square = this.getSquare(3,3,1);
 		testsp.sprite = 'sww1';
 		this.getSquare(3,3,1)._entity = testsp;
-		
+		*/
 		let chest = new Chest(g._nextEntityId++);
 		this._entities.push(chest);
 		chest.setNeededKey('HealPotion',null,null);

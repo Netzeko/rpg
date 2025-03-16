@@ -1,4 +1,4 @@
-<head>
+﻿<head>
 <link rel="stylesheet" type="text/css" href="clicker.css">
 </head>
 <script src="toolbox.js"></script>
@@ -20,6 +20,7 @@
 <script src="MonsterGroup.js"></script>
 <script src="Merchant.js"></script>
 <script src="Chest.js"></script>
+<script src="NPC.js"></script>
 <script src="main.js"></script>
 <style>
 #character{
@@ -66,7 +67,7 @@
 	</div>
 	<div id="middleMenu">
 		<!--<input type="button" value="Summon monster" onclick="addEnnemy()"/>-->
-		<input type="button" value="attack" onclick="attackTarget()"/>
+		<!--<input type="button" value="attack" onclick="attackTarget()"/>-->
 		<input type="button" value="add member" onclick="addPartyMember()"/>
 		<input type="button" value="add potion" onclick="addPotion()"/>
 		<input type="button" value="add armor set" onclick="addArmor()"/>
@@ -117,6 +118,70 @@
 	</div>
 </div>
 <div id="iteminfo" style="display:none"></div>
+<div id="skillmaininfo" class="skillinfo" style="display:none">
+	<img src="../ressources/skills/Attack.png" class="skillicon" style="float: left;" id="iconmaininfo"/>
+	<div class="containerVCenter">
+		<span class="verticalalign"  id="namemaininfo">Immolation par l'archange de la mort</span>
+	</div>
+	<hr class="clearFloat"/>
+	<span class="smalldesc"  id="descmaininfo">
+	ça utilise un objet. c'est cool et assez utile (comme les objets). Je ne sais pas quoi écrire donc je remplis de plein de texte inutile. c'est pour tester les descriptions longues.</span><br/>
+	Puissance : <span class="smalldesc"  id="powermaininfo">9000</span><br/>
+	<img src="../ressources/icons/endurance.png" class="smallicon"/><span class="smallleft" id="endurancemaininfo">100</span> 
+	<img src="../ressources/icons/mana.png" class="smallicon"/><span class="smallleft" id="manamaininfo">100</span>
+	<img src="../ressources/icons/mind.png" class="smallicon"/> <span class="smallleft" id="mindmaininfo">0</span>
+	<img src="../ressources/icons/health.png" class="smallicon"/><span class="smallleft"  id="healthmaininfo">0</span>
+</div>
+
+
+<div id="changeqskill" style="display:none" onmouseleave="this.style.display='none'">
+	<div id="skillprevinfo" class="skillinfo" >
+		<img src="" class="skillicon" style="float: left;" id="iconprevinfo"/>
+		<div class="containerVCenter">
+			<span class="verticalalign"  id="nameprevinfo"></span>
+		</div>
+		<hr class="clearFloat"/>
+		<span class="smalldesc"  id="descprevinfo"></span><br/>
+		Puissance : <span class="smalldesc"  id="powerprevinfo"></span><br/>
+		<img src="../ressources/icons/endurance.png" class="smallicon"/><span class="smallleft" id="enduranceprevinfo"></span> 
+		<img src="../ressources/icons/mana.png" class="smallicon"/><span class="smallleft" id="manaprevinfo"></span>
+		<img src="../ressources/icons/mind.png" class="smallicon"/> <span class="smallleft" id="mindprevinfo"></span>
+		<img src="../ressources/icons/health.png" class="smallicon"/><span class="smallleft"  id="healthprevinfo"></span>
+	</div>
+	<div id="skillnextinfo" class="skillinfo">
+		<img src="" class="skillicon" style="float: left;" id="iconnextinfo"/>
+		<div class="containerVCenter">
+			<span class="verticalalign"  id="namenextinfo"></span>
+		</div>
+		<hr class="clearFloat"/>
+		<span class="smalldesc"  id="descnextinfo"></span><br/>
+		Puissance : <span class="smalldesc" id="powernextinfo"></span><br/>
+		<img src="../ressources/icons/endurance.png" class="smallicon"/><span class="smallleft" id="endurancenextinfo"></span> 
+		<img src="../ressources/icons/mana.png" class="smallicon"/><span class="smallleft" id="mananextinfo"></span>
+		<img src="../ressources/icons/mind.png" class="smallicon"/> <span class="smallleft" id="mindnextinfo"></span>
+		<img src="../ressources/icons/health.png" class="smallicon"/><span class="smallleft"  id="healthnextinfo"></span>
+	</div>
+	<div id="qskillslots" >
+		<div id="qskill0_0" class="qslot" onclick="chargeqskill(0)"></div>
+		<div id="qskill0_1" class="qslot" onclick="chargeqskill(1)"></div>
+		<div id="qskill0_2" class="qslot" onclick="chargeqskill(2)"></div>
+		<div id="qskill0_3" class="qslot" onclick="chargeqskill(3)"></div>
+		<div id="qskill0_4" class="qslot" onclick="chargeqskill(4)"></div>
+		<div id="qskill0_5" class="qslot" onclick="chargeqskill(5)"></div>
+		<div id="qskill0_6" class="qslot" onclick="chargeqskill(6)"></div>
+		<div id="qskill0_7" class="qslot" onclick="chargeqskill(7)"></div>
+		<div id="qskill0_8" class="qslot" onclick="chargeqskill(8)"></div>
+		<div id="qskill0_9" class="qslot" onclick="chargeqskill(9)"></div>
+		<div id="qskill0_10" class="qslot" onclick="chargeqskill(10)"></div>
+		<div id="qskill0_11" class="qslot" onclick="chargeqskill(11)"></div>
+		<div id="qskill0_12" class="qslot" onclick="chargeqskill(12)"></div>
+		<div id="qskill0_13" class="qslot" onclick="chargeqskill(13)"></div>
+		<div id="qskill0_14" class="qslot" onclick="chargeqskill(14)"></div>
+		<div id="qskill0_15" class="qslot" onclick="chargeqskill(15)"></div>
+		<div id="qskill0_16" class="qslot" onclick="chargeqskill(16)"></div>
+		<div id="qskill0_17" class="qslot" onclick="chargeqskill(17)"></div>
+	</div>
+</div>
 
 <hr class="clearFloat"/>
 	<input type="button" value="save" onclick="save()"/>

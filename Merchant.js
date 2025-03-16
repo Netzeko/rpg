@@ -35,7 +35,7 @@ class Merchant{
 	
 	sellUselessItems(){
 		for(let i =0;i<this._items.length;i++){
-			if( this._items[i].price < this.totalworth /15 
+			if( this._items[i].price < this.totalworth /20 
 			|| this._available.indexOf(this._items[i].getClassName()) < 0 
 			|| this.copiesNumber(this._items[i].getClassName()) >= 2 ){
 				//console.log('selling item');
@@ -55,7 +55,7 @@ class Merchant{
 		let tobuy = [];
 		for(let i =0;i<this._available.length;i++){
 			//console.log(this._available[i]+' price:'+window[this._available[i]].basePrice());
-			if( window[this._available[i]].basePrice() > this.totalworth /25
+			if( window[this._available[i]].basePrice() > this.totalworth /50
 			&& window[this._available[i]].basePrice() <= this.totalworth /5 ){
 				tobuy.push(this._available[i]);
 			}

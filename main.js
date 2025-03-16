@@ -141,7 +141,9 @@ function initSkillbook(){
 	let availableSkills = [];
 	addSkill(Heal);
 	addSkill(Fireball);
-	addSkill(Meditate);
+	addSkill(Attack);
+	addSkill(UseItem);
+	//addSkill(Meditate);
 
 	addSkillBookWindow(skills);
 }
@@ -346,7 +348,10 @@ function init(){
 			case 32://space bar
 				if(!g._currentMap) break;
 				g._currentMap.interact(0);
-
+			case 107://numpad +
+				if(!selectedChar)break;
+				charSelectSubWindow('skills',selectedChar._id);
+				break;
 			
 
 			default: return; // exit this handler for other keys
@@ -360,6 +365,14 @@ function init(){
 		g._spawnareas[i].spawn();
 	}
 
+}
+
+function interact(n,item = null){
+	if(g._currentMap){
+		g._currentMap.interact(n,item);
+	}else{
+		//comment relayer l'interaction avec le npc courant ?
+	}
 }
 
 function showPlace(){
@@ -381,7 +394,7 @@ function learnSkill(skillname){
 function addPartyMember(){
 	let next = nextFreeCard(partyCards);
 	if(next){
-		s.addPartyMember(next);
+		g.addPartyMember(next);
 	}
 }
 
@@ -424,10 +437,10 @@ function addArmor(){
 	//items[b._id] = b;
 	addItemDiv(b);
 	
-	let b = new window['CopperRing'](g._nextItemId++);
-	g.addItem(b);
+	let c = new window['CopperRing'](g._nextItemId++);
+	g.addItem(c);
 	//items[b._id] = b;
-	addItemDiv(b);
+	addItemDiv(c);
 }
 
 function addItemFromName(itemname){
@@ -448,11 +461,19 @@ function selectItem(id){
 	showSelectionItem(id);
 }
 
-function useItem(){
-	if(!selectedItem || !targetedChar || !selectedChar) return;
-	if(selectedItem.use(selectedChar,targetedChar)){
+function useItem(item = null,target = null){
+	if(!selectedItem && !item || !selectedChar) return;
+	if(!item){
+		item = selectedItem;
+	}
+	if(!targetedChar && !target){
+		target = selectedChar;
+	}else if(!target){
+		target = targetedChar;
+	}
+	if(item.use(selectedChar,target)){
 		console.log('USED');
-		removeItem(selectedItem);
+		removeItem(item);
 	}
 	document.getElementById('iteminfo').style.display = 'none';
 }

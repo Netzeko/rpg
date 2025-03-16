@@ -6,14 +6,14 @@ class Creature{
 		this.name = name;
 		//Attributes
 		// https://en.wikipedia.org/wiki/Attribute_(role-playing_games)
-		this.strength = 5;
-		this.constitution = 5;
-		this.dexterity = 5;
-		this.perception = 5;
-		this.spirit = 5;
-		this.wisdom = 5;
-		this.luck = 5;
-		this.speed = 5;
+		this.strength = 10;
+		this.constitution = 10;
+		this.dexterity = 10;
+		this.perception = 10;
+		this.spirit = 10;
+		this.wisdom = 10;
+		this.luck = 10;
+		this.speed = 10;
 		
 		this.weaponAttack = 5;
 		this.armor = 0;

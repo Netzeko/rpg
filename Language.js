@@ -38,6 +38,9 @@ class FrenchLanguage{
 		this.var_luck = 'chance';
 		this.var_speed = 'vitesse';
 		
+		this.var_yes = 'oui';
+		this.var_no = 'non';
+		
 		this.var_name = 'nom';
 		this.var_level = 'niveau';
 		this.var_health = 'santé';
@@ -96,6 +99,20 @@ class FrenchLanguage{
 		
 		this.var_level_underground = 'sous-terrains';
 		this.var_level_sewers = 'égouts';
+
+		this.var_wantsomepotion = 'voulez-vous des potions ?';
+		this.var_takecare = 'prenez soin de vous.';
+		this.var_ineedmoney = 'quelques pièces pour un pauvre mendiant';
+		this.var_give50 = 'donner 50 pièces d\'or';
+		this.var_thankyou = 'merci.';
+		this.var_needsomething = 'besoin de quelque chose ?';
+
+		this.var_potent = 'puissance';
+		this.var_cost = 'cout';
+		this.var_skillAttackname = 'attaque';
+		this.var_skillAttackdesc = 'l\'attaque physique de base';
+		this.var_skillUseItemname = 'utiliser objet';
+		this.var_skillUseItemdesc = 'utilise l\'objet sélectionné';
 	}
 }
 
@@ -111,6 +128,9 @@ class EnglishLanguage{
 		this.var_wisdom = 'wisdom';
 		this.var_luck = 'luck';
 		this.var_speed = 'speed';
+		
+		this.var_yes = 'yes';
+		this.var_no = 'no';
 		
 		this.var_name = 'name';
 		this.var_level = 'level';
@@ -170,5 +190,12 @@ class EnglishLanguage{
 		
 		this.var_level_underground = 'undergrounds';
 		this.var_level_sewers = 'sewers';
+		
+		this.var_wantsomepotion = 'want some potions ?';
+		this.var_takecare = 'take care.';
+		this.var_ineedmoney = 'a few coins for a lonely beggar';
+		this.var_give50 = 'give 50 gold';
+		this.var_thankyou = 'thank you.';
+		this.var_needsomething = 'do you need something ?';
 	}
 }

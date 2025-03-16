@@ -16,6 +16,7 @@ class Skill{
 	static getEnduranceConsumption(){return 0;}
 	static getManaConsumption(){return 0;}
 	static getMindConsumption(){return 0;}
+	static potent(){return 0;}
 }
 
 class Heal extends Skill{
@@ -36,9 +37,68 @@ class Heal extends Skill{
 	static getManaConsumption(){
 		return 10;
 	}
-
+	static potent(){return 15;}
 }
 
+class Attack extends Skill{
+	static use(user,target){
+		if(Attack.possible(user)){
+			
+			user.modStat('endurance', -Attack.getEnduranceConsumption() );
+			
+			if(user.health > 0 && target.health > 0){
+				user.triggerEvents('evattack',[user,target]);
+				target.triggerEvents('evattacked',[user,target]);
+				console.log(user.name+' attack '+target.name+' ('+user.precision+'/'+target.dodge+')');
+				//var damages = Math.max(attacker.attack - defenser.defense,0);
+				let damages = Math.floor( (10 * user.attack) / (10 + target.defense));
+				let hit = (user.precision / target.dodge) *0.4;
+				
+				let res = 1.0-Math.random();
+				if(res > hit){
+					//console.log('miss!');
+					target.triggerEvents('evmissed',[user,target]);
+					return 0;
+				}
+				target.triggerEvents('evhit',[user,target]);
+				console.log('>Deal '+damages+' damages ('+user.attack+' ATT - '+target.defense+' DEF)');
+				target.modStat('health',- damages);
+				if(damages){
+					target.triggerEvents('evhurt',[user,target]);
+				}
+				return 1;
+			}
+			
+		}
+		return 0;
+	}
+	
+	static possible(user){
+		return user.endurance >= Attack.getEnduranceConsumption();
+	}
+	static getName(){return 'Attack';}
+	static getClassName(){return 'Attack';}
+
+	static getEnduranceConsumption(){
+		return 1;
+	}
+	static potent(){return 10;}
+}
+
+
+class UseItem extends Skill{
+	static use(user,target){
+		useItem(null,target);
+		return 1;
+	}
+	
+	static possible(user){
+		return 1;
+	}
+	static getName(){return 'Use item';}
+	static getClassName(){return 'UseItem';}
+
+}
 
 class Fireball extends Skill{
 	static use(user,target){
@@ -57,7 +117,7 @@ class Fireball extends Skill{
 	static getManaConsumption(){
 		return 10;
 	}
-	
+	static potent(){return 15;}
 	
 }
 

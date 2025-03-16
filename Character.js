@@ -6,14 +6,14 @@ class Character extends Creature{
 		this.exp = 0;
 		this.totalexp = 0;
 		this.skillpoints = 1;
-		this.points = 10;
+		this.points = 21;
 		
 		this.dead = 0;
 		this.regeneration = 1;
 		this.skillsLearned = '';
 		this._skills = [];
-		this.maxqslot = 6;
-		this._quickSlots = [null,null,null,null,null,null];
+		this.maxqslot = 9;
+		this._quickSlots = [null,null,null,null,null,null,null,null,null];
 		this.maxequip = 12
 		this._equipSlots = [null,null,null,null,null,null,
 												null,null,null,null,null,null];
@@ -23,6 +23,20 @@ class Character extends Creature{
 														'belt','bracelet','pants','ring','boots','ring' ];
 		this.imageid = 1;
 		this._prio = [ ['1m','t','100','Attack','rm'] ];
+		
+		this._quickSkills = [null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null];
+		this.maxqskill = 18;
+	}
+	
+	initChar(){
+		this._skills.push(Attack);
+		this._skills.push(UseItem);
+		this._skills[Attack.getClassName()] = Attack;
+		this._skills[UseItem.getClassName()] = UseItem;
+		this.skillsLearned += Attack.getClassName()+',';
+		this.skillsLearned += UseItem.getClassName()+',';
+		this._quickSkills[0] = 'Attack';
+		this._quickSkills[1] = 'UseItem';
 	}
 	
 	loadFromCookie(savename=''){
@@ -306,7 +320,7 @@ class Character extends Creature{
 			console.log('LEVEL UP !');
 			this.exp -= this.neededExp();
 			this.level ++;
-			this.points += 20 + Math.floor(this.level/10);
+			this.points += 30 + Math.floor(this.level/10);
 			this.skillpoints += 1;
 			this.calculateStats();
 			this.showProperties();
@@ -329,7 +343,7 @@ class Character extends Creature{
 			console.log('no skillpoint');
 			return;
 		}
-		this._skills[this._skills.length] = skill;
+		this._skills.push(skill);
 		this._skills[skill.getClassName()] = skill;
 		this.skillsLearned += skill.getClassName()+',';
 		this.skillpoints--;
@@ -351,6 +365,7 @@ class Character extends Creature{
 	
 	doAction(){
 		//console.log('doAction Start');
+		let ok = 0;
 		for(let i=0;i<this._prio.length;i++){
 			//console.log('Row 1');
 			let targetcond = [];
@@ -397,7 +412,7 @@ class Character extends Creature{
 			//console.log('targetcond=');
 			//console.log(targetcond);
 			
-			let ok = 0;
+			ok = 0;
 			let stat = '';
 			let comp = '=';
 			let treshold = Number(this._prio[i][2])/100;
@@ -511,6 +526,7 @@ class Character extends Creature{
 			//console.log('curtarget=');
 			//console.log(curtarget);
 			if(!curtarget || !ok){
+				ok = 0;
 				continue;
 			}
 			
@@ -526,8 +542,13 @@ class Character extends Creature{
 					ok = 1;
 					break;
 				default:
-					g.useSkill(this,curtarget,this._prio[i][3]);
-					ok = 1;
+					if( skills[this._prio[i][3]].possible(this) ){
+						g.useSkill(this,curtarget,this._prio[i][3]);
+						ok = 1;
+					}else{
+						ok = 0;
+					}
+			
 			}
 			//console.log('end row;ok='+ok);
 			if(ok){
@@ -535,7 +556,10 @@ class Character extends Creature{
 			}
 			
 		}
-
+		if(!ok){
+			//console.log(this.name+' has nothing to do ');
+			this.modStat('endurance',1);
+		}
 		setTimeout('doAction("c",'+this._id+')',this.timeAttack);
 	}
 	

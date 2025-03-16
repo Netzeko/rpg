@@ -24,7 +24,7 @@ class Entity{
 			savetext+=''+keys[i]+':'+this[keys[i]]+':'+(typeof this[keys[i]])+'/';
 		}
 		setCookie('save'+savename+'entity'+this._id,savetext);
-		
+		console.log('saved entity in '+'save'+savename+'entity'+this._id);
 	}
 	
 	loadFromCookie(savename=''){

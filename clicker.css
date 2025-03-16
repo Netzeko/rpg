@@ -151,7 +151,8 @@
 	background-color:#00FF7F;
 }
 #inventoryWindow{
-	background-color:#A0A0A0;
+	baackground-color:#A0A0A0;
+	background-image:url("../ressources/textures/paper.png");
 	overflow-y: scroll;
 }
 .monstername{
@@ -220,9 +221,14 @@
 }
 
 #skillbookWindow{
-	background-color:purple;
+	background-color:black;
+	color:white;
 	width:400px;
 	height:400px;
+	background-image: url("../ressources/bg/magicb.png");
+	background-size: 400px 400px;
+	background-position: center; 
+	background-repeat: no-repeat;
 }
 
 .item{
@@ -360,7 +366,35 @@
 	background-color:rgba(255,255,255,0.6);
 	text-align:center;
 }
-
+.skillicon{
+	width:40px;
+	height:40px;
+	border:1px solid black;
+	cursor: pointer;
+}
+.skillbookicon{
+	width:32px;
+	height:32px;
+	margin:0px;
+	padding:0px;
+	float:left;
+}
+.skilllearn{
+	height:24px;
+	padding:1px;
+	margin:2px;
+	border:1px solid black;
+	width:50px;
+	float:left;
+	color:black;
+	text-align:center;
+	background-color : rgba(255,255,255,0.8);
+}
+.skillname{
+	height:24px;
+	padding:4px;
+	float:left;
+}
 .dialogDiv{
 	width : 570px;
 	height : 100px;
@@ -369,7 +403,14 @@
 	left : 10px;
 	overflow-y:auto;
 	padding:5px;
+	line-height:20px;
+	background-color:rgba(0,0,0,0.6);
 	color:white;
+	text-align:left;
+}
+.answerDialog{
+	position:absolute;
+	width:200px;
 	line-height:20px;
 	background-color:rgba(0,0,0,0.6);
 	color:white;
@@ -389,4 +430,72 @@
 	z-index:4;
 	border:1px solid grey;
 }
+.skillinfo{
+	position : absolute;
+	width:190px;
+	height:180px;
+	background-color:rgba(0,0,0,0.7);
+	baackground-image:url("../ressources/skills/Attack.png");
+	background-size : 40px 40px;
+	background-position : 5px 5px;
+	background-repeat:no-repeat;
+	padding : 4px;
+	z-index:4;
+	border:1px solid grey;
+	color:white;
+}
+.smalldesc{
+	font-size:14px;
+}
+.smallicon{
+	float:left;
+	width:16px;
+	height:16px;
+}
+.smallleft{
+	float:left;
+	font-size : 16px;
+	margin:2px 3px 2px 3px;
+}
+.containerVCenter{
+	height:40px;
+	float:left;
+	width:145px;
+	line-height:40px;
+	text-align:center;
+}
+.verticalalign{
+	display: inline-block;
+  vertical-align: middle;
+  line-height: normal;
+}
+
+#changeqskill{
+	width : 400px;
+	height : 280px;
+	position:absolute;
+	z-index:4;
+}
+#skillprevinfo{
+	
+}
+#skillnextinfo{
+	position:asbolute;
+	left : 200px;
+}
+#qskillslots{
+	position:absolute;
+	top : 190px;
+	width:400px;
+	height:90px;
+	background-color:rgba(255,255,255,0.7);
+}
+
+
+
+
+
+
+
+
 

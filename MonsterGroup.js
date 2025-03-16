@@ -113,7 +113,7 @@ class MonsterGroup extends Entity{
 		if(this._square._level == g._currentMap ){
 			delay = this.movementdelay;
 		}else{
-			delay = this.movementdelay*4;
+			delay = this.movementdelay;
 		}
 		this._nextMove = setTimeout('entity'+this._id+'.automove()',delay);
 	}

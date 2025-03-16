@@ -103,6 +103,7 @@ class Game{
 		
 		let slot = 1;
 		let c = new Character(this.getMemberName(1),this._nextCharId ++);
+		c.initChar();
 		this.listPartyMembers = c.name+',';
 		this._partyMembers[this._partyMembers.length] = c;
 		this._numberMember++;
@@ -204,6 +205,7 @@ class Game{
 	addPartyMember(slot){
 		
 		let c = new Character(this.getMemberName(slot),this._nextCharId ++);
+		c.initChar();
 		this._partyMembers[this._partyMembers.length] = c;
 		this._numberMember++;
 		addCharacter(c,slot);
@@ -300,8 +302,8 @@ class Game{
 	}
 	
 	useSkill(attacker,defenser,skillname){
-		if(!defenser || !attacker) return;
-
+		if(!attacker) return;
+		if(!defenser) defenser = attacker;
 		if(attacker._skills[skillname].use(attacker,defenser)){
 			console.log(skillname+' used');
 			if(defenser.health <= 0){

@@ -118,14 +118,14 @@ class Nightmare extends Monster{
 		this.cat = cat;
 		this.exp = 50 * cat;
 
-		this.strength = 4;
-		this.constitution = 2+2*cat;
-		this.dexterity = 5+1*cat;
-		this.perception = 5+2*cat;
-		this.spirit = 5;
-		this.wisdom = 5;
-		this.luck = 5;
-		this.speed = 5+3*cat;
+		this.strength = 8;
+		this.constitution = 4+4*cat;
+		this.dexterity = 10+2*cat;
+		this.perception = 10+4*cat;
+		this.spirit = 10;
+		this.wisdom = 10;
+		this.luck = 10;
+		this.speed = 10+6*cat;
 		
 		this.weaponAttack = 5+2*cat;
 		this.armor = 2*cat;

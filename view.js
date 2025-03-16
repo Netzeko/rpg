@@ -48,7 +48,12 @@ function addSkillBookWindow(skillbook){
 	
 	for(let i =0;i<skillbook.length;i++){
 		divSB.innerHTML +=
-		' <input type="button" value="learn" onclick="learnSkill(\''+skillbook[i].getName()+'\')"/> '+skillbook[i].getName()+'<br/>'
+		'<div class="skillrow">'+
+			//'<div class="skilllearn" onclick="learnSkill(\''+skillbook[i].getName()+'\')">Learn</div>'+
+			'<img style="cursor: pointer;" class="skillbookicon" onclick="learnSkill(\''+skillbook[i].getName()+'\')" src="../ressources/icons/skillbook.png"/>'+
+			'<img class="skillbookicon" src="../ressources/skills/'+skillbook[i].getClassName()+'.png" onmousemove="showSkillInfo(event,this,'+skillbook[i].getClassName()+')" onmouseout="hideSkillInfo();"/> '+
+			'<div class="skillname">'+skillbook[i].getName()+'</div>'+
+		'</div><br class="clearFloat"/>';
 	}
 	divSB.style.display = 'none';
 	document.getElementById('lateralWindow').appendChild(divSB);
@@ -115,12 +120,14 @@ function characterPrioRow(c,row,rownumber){
 		selected = '';
 	}
 	priodiv += '<option value="" '+selected+'></option>';
+	/*
 	if(row[3] == 'Attack'){
 		selected = ' selected="selected" ';
 	}else{
 		selected = '';
 	}
 	priodiv += '<option value="Attack" '+selected+'>Standard attack</option>';
+	*/
 	for(let j=0;j<c._skills.length;j++){
 		if(row[3] == c._skills[j].getClassName()){
 			selected = ' selected="selected" ';
@@ -190,6 +197,7 @@ function addCharacter(c,slot){
 		let divC = document.createElement('div');
 		divC.id = 'char'+c._id;
 		divC.className = 'divcharacter';
+		divC.character = c;
 		divC.innerHTML = 
 		'<span class="charName" id="char'+c._id+'name">'+c.name+'</span><br/>'+
 		'<img src="../ressources/char/swordman1.png" alt="Member" class="charImg" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')">'+
@@ -198,8 +206,9 @@ function addCharacter(c,slot){
 		'<div class="maxbarc"><div class="endurancebar barc" id="endurancebarc'+c._id+'"></div></div>'+
 		'<div class="maxbarc"><div class="manabar barc" id="manabarc'+c._id+'"></div></div>'+
 		'<div class="maxbarc"><div class="mindbar barc" id="mindbarc'+c._id+'"></div></div>';
-
-		//divC.setAttribute('');
+		divC.validDropTarget = 1;
+		divC.setAttribute('ondrop','dropItem(event)');
+		divC.setAttribute('ondragover','allowDrop(event)');
 		document.getElementById('party'+slot+'card').appendChild(divC);
 		
 		partyCards[slot] = c;
@@ -210,6 +219,11 @@ function addCharacter(c,slot){
 		let qslotdiv = '';
 		for(let i=0;i<c.maxqslot;i++){
 			qslotdiv += '<div id="qslot'+c._id+'_'+i+'" class="qslot" ondrop="dropItem(event)" ondragover="allowDrop(event)"></div>';
+		}
+		
+		let qskilldiv = '';
+		for(let i=0;i<c.maxqskill;i++){
+			qskilldiv += '<div id="qskill'+c._id+'_'+i+'" class="qslot" ></div>';
 		}
 		
 		let equipdiv = '';
@@ -239,6 +253,7 @@ function addCharacter(c,slot){
 		'<input type="button" value="Characteritics & Skills" onclick="charSelectSubWindow(\'charStats\','+c._id+')"/>'+
 		'<input type="button" value="Equipment" onclick="charSelectSubWindow(\'equip\','+c._id+')"/>'+
 		'<input type="button" value="Priorities" onclick="charSelectSubWindow(\'prio\','+c._id+')"/>'+
+		'<input type="button" value="Skills" onclick="charSelectSubWindow(\'skills\','+c._id+')"/>'+
 		'<hr class="clearFloat"/>'+
 		'<div id="charStats'+c._id+'" class="charSubPanel">'+
 		'<div class="character">'+
@@ -279,8 +294,7 @@ function addCharacter(c,slot){
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'speed\')"/><br/>'+
 		'</div>'+
 		'<hr class="clearFloat"/>'+
-		'<div id="skills'+c._id+'"></div>'+
-		'<input type="button" value="use item" onclick="useItem()"/>'+
+		qskilldiv+
 		'<hr class="clearFloat"/>'+
 		qslotdiv+
 		'</div>'+
@@ -289,6 +303,9 @@ function addCharacter(c,slot){
 		'</div>'+
 		'<div id="prio'+c._id+'" class="charSubPanel" style="display:none;">'+
 		priodiv+
+		'</div>'+
+		'<div id="skills'+c._id+'" class="charSubPanel" style="display:none;">'+
+		''+
 		'</div>'+
 		'</div>';
 		//var charSkills = c._skills;
@@ -304,6 +321,19 @@ function addCharacter(c,slot){
 		for(let i=0;i<c._quickSlots.length;i++){
 			if(!c._quickSlots[i]) continue;
 			addItemDiv(c._quickSlots[i],'qslot'+c._id+'_'+i);
+		}
+		
+		/*
+		
+		let qskilldiv = '';
+		for(let i=0;i<c.maxqslot;i++){
+			qskilldiv += '<div id="qskill'+c._id+'_'+i+'" class="qslot" ></div>';
+		}
+		*/
+		for(let i=0;i<c._quickSkills.length;i++){
+			if(!c._quickSkills[i]) continue;
+			document.getElementById('qskill'+c._id+'_'+i).innerHTML = '<img onclick="g.useSkill(selectedChar,targetedChar,\''+c._quickSkills[i]+'\')" src="../ressources/skills/'+c._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+c._quickSkills[i]+')" onmouseout="hideSkillInfo();"/>';
+			//addItemDiv(c._quickSlots[i],'qslot'+c._id+'_'+i);
 		}
 		
 		for(let i=0;i<c._equipSlots.length;i++){
@@ -326,8 +356,18 @@ function showSkillsChar(id){
 	div.innerHTML = '';
 	for(let i=0;i<members[id]._skills.length;i++){
 		div.innerHTML +=
-			'<input type="button" value="'+members[id]._skills[i].getName()+'" onclick="s.useSkill(selectedChar,targetedChar,\''+members[id]._skills[i].getClassName()+'\')"/>';
+			'<img id="skill'+id+'_'+members[id]._skills[i].getClassName()+'" onclick="g.useSkill(selectedChar,targetedChar,\''+members[id]._skills[i].getClassName()+'\')" src="../ressources/skills/'+members[id]._skills[i].getClassName()+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+members[id]._skills[i].getClassName()+')" onmouseout="hideSkillInfo();"/>';
+		
+		
 	}
+	//Doit être a la fin, sinon la modification du innerHTML supprime les eventlistener
+	for(let i=0;i<members[id]._skills.length;i++){
+		let img = document.getElementById('skill'+id+'_'+members[id]._skills[i].getClassName() );
+		img.addEventListener("contextmenu", skillrightclick, true); 
+		//console.log(img);
+	}
+	
+	
 }
 
 
@@ -335,8 +375,12 @@ function addEnnemyDiv(m){
 	let divE = document.createElement('div');
 	divE.id = 'monster'+m._id;
 	divE.className = 'divmonster';
+	divE.character = m;
 	divE.style = 'background-image:url("../ressources/textures/'+m.sprite+'.png");';
 	divE.setAttribute('onclick','target("ennemy",'+m._id+','+m.slot+')');
+	divE.validDropTarget = 1;
+	divE.setAttribute('ondrop','dropItem(event)');
+	divE.setAttribute('ondragover','allowDrop(event)');
 	divE.innerHTML = 
 	'<span class="monstername">'+m.name+'</span><br/>'+
 	//'<img src="13.jpg" alt="Ennemy" height="198" width="198" id="imgennemy'+m._id+'" onclick="target(\'ennemy\','+m._id+','+m.slot+')"><br/>'+
@@ -377,9 +421,9 @@ function removeItemDiv(id){
 
 function itemrightclick(event) {
 	//console.log(event);
-		console.log(this.item);//this est l'itemdiv
+		//console.log(this.item);//this est l'itemdiv
     // your code goes here
-    console.log("right click on inputbox")
+    //console.log("right click on inputbox")
     event.preventDefault();
     event.returnvalue = false; // IE <=9;
 		
@@ -405,6 +449,52 @@ function itemrightclick(event) {
 				if(item.usable) target = document.getElementById('usableItems');
 				else if(item.equipment) target = document.getElementById('equipItems');
 				else target = document.getElementById('otherItems');*/
+}
+
+var nextskillloaded = null;
+var prevskillloaded = null;
+
+function skillrightclick(event){
+	event.preventDefault();
+	event.returnvalue = false; // IE <=9;
+	
+	//let e = document.getElementById('iteminfo');
+	let x=event.clientX;
+	let y=event.clientY;
+	let posx = 'left:'+(x-200)+'px;';
+	let posy = 'top:'+(y-235)+'px;';
+	
+	hideSkillInfo();
+	let data = this.id.substr(5).split('_');
+	
+	if( nextskillloaded != skills[data[1]]){
+		loadSkillInfo(skills[data[1]],'next');
+		nextskillloaded = skills[data[1]];
+	}
+
+	for(let i=0;i<members[data[0]].maxqskill;i++){
+		let e = document.getElementById('qskill0_'+i);
+		if(members[data[0]]._quickSkills[i]){
+			e.innerHTML = '<img onclick="" src="../ressources/skills/'+members[data[0]]._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+skills[members[data[0]]._quickSkills[i]]+',\'prev\')" onmouseout="hidePrevSkillInfo();"/>';
+		}else{
+			e.innerHTML = '';
+		}
+	}
+	
+	
+	document.getElementById('changeqskill').style = posx+posy+'display:block;';
+}
+
+function chargeqskill(slot){
+	if(!selectedChar) return;
+	selectedChar._quickSkills[slot] = nextskillloaded.getClassName();
+	
+	for(let i=0;i<selectedChar._quickSkills.length;i++){
+		if(!selectedChar._quickSkills[i]) continue;
+		document.getElementById('qskill'+selectedChar._id+'_'+i).innerHTML = '<img onclick="g.useSkill(selectedChar,targetedChar,\''+selectedChar._quickSkills[i]+'\')" src="../ressources/skills/'+selectedChar._quickSkills[i]+'.png" class="skillicon" onmousemove="showSkillInfo(event,this,'+selectedChar._quickSkills[i]+')" onmouseout="hideSkillInfo();"/>';
+		//addItemDiv(c._quickSlots[i],'qslot'+c._id+'_'+i);
+	}
+	document.getElementById('changeqskill').style.display = 'none';
 }
 
 function itemdblclick(id){
@@ -482,7 +572,9 @@ function dropItem(ev){
 	//console.log('remonte au parent');
 	if(target.children.length 
 	&& target.id != 'inventoryWindow'
-	&& target.className != 'itemsShopWindow'){
+	&& target.className != 'itemsShopWindow'
+	&& target.className != 'divcharacter'
+	&& target.className != 'divmonster'){
 		console.log('occupé');
 		return false;
 	}
@@ -552,6 +644,18 @@ function moveItem(item,target){
 		giveback = 1;
 		
 	}
+	else if(target.id.startsWith('npc') ){
+		console.log('npc');
+		targetObj = g._currentMap.getCurrentSquare()._entity;
+		//giveback = 1;
+		
+	}
+	else if(target.className == 'divcharacter' || target.className == 'divmonster'){
+		if(item.usable){
+			useItem(item,target.character);
+		}
+		return;
+	}
 	//console.log('fin');
 	//console.log(item);
 	if(!item._character.removeItem(item)){
@@ -559,16 +663,21 @@ function moveItem(item,target){
 		return;
 	}
 	if(targetObj){
-		targetObj.addItem(item,targetSlot);
-		if(!giveback){
-			target.appendChild(document.getElementById('item'+item._id));
-		}else{
+		if(giveback){
 			g.addItem(item,targetSlot);
 			if(item.usable) target = document.getElementById('usableItems');
 			else if(item.equipment) target = document.getElementById('equipItems');
 			else target = document.getElementById('otherItems');
-			target.appendChild(document.getElementById('item'+item._id));
 		}
+		let itemd = document.getElementById('item'+item._id);
+		if(!itemd){
+			console.log('recreating item div');
+			itemd = addItemDiv(item,target);
+		}
+		else{
+			target.appendChild(itemd );
+		}
+		targetObj.addItem(item,targetSlot);
 	}else{
 		document.getElementById('item'+item._id).parentNode.removeChild(document.getElementById('item'+item._id));
 	}
@@ -708,14 +817,88 @@ function showInfo(event,elem){
 	}
 	e.innerHTML = txt;
 	
-		//'left : '+(x+6)+'px;'+
-		//'top :'+(y+6)+'px;';
-		//console.log(e.style);
-	
 }
 
 function hideInfo(){
 	document.getElementById('iteminfo').style.display = "none";
+}
+
+var loadedSkill = null;
+function showSkillInfo(event,elem,skill,target = 'main'){
+	
+	if(target == 'main'){
+		let e = document.getElementById('skillmaininfo');
+		let x=event.clientX;
+		let y=event.clientY;
+		let posx,posy;
+		
+		
+		let rectcenter = document.getElementById('mainWindow').getBoundingClientRect();
+		let rectimg = elem.getBoundingClientRect();
+		if(rectimg.bottom <= rectcenter.bottom){
+			posy = 'top:'+(y +6)+'px;';
+		}else{
+			posy = 'bottom:'+(window.innerHeight - y +6)+'px;';
+			
+		}
+		
+		if(rectimg.right <= rectcenter.right){
+			posx = 'left:'+(x +6)+'px;';
+		}else{
+			posx = 'right:'+(window.innerWidth - x +6)+'px;';
+		}
+		e.style =  'display : block;'+ posx+posy;
+	}
+	
+	//if(loadedSkill != skill){
+	//  console.log('reload');
+		loadSkillInfo(skill,target);
+	//	loadedSkill = skill;
+	//}
+	
+	//console.log(skill);
+}
+
+
+/*
+<img src="../ressources/skills/Attack.png" class="skillicon" style="float: left;" id="iconmaininfo"/>
+	<div class="containerVCenter">
+		<span class="verticalalign"  id="namemaininfo">Immolation par l'archange de la mort</span>
+	</div>
+	<hr class="clearFloat"/>
+	<span class="smalldesc"  id="descmaininfo">
+	ça utilise un objet. c'est cool et assez utile (comme les objets). Je ne sais pas quoi écrire donc je remplis de plein de texte inutile. c'est pour tester les descriptions longues.</span><br/>
+	Puissance : <span class="smalldesc"  id="powermaininfo">9000</span><br/>
+	<img src="../ressources/icons/endurance.png" class="smallicon"/><span class="smallleft" id="endurancemaininfo">100</span> 
+	<img src="../ressources/icons/mana.png" class="smallicon"/><span class="smallleft" id="manamaininfo">100</span>
+	<img src="../ressources/icons/mind.png" class="smallicon"/> <span class="smallleft" id="mindmaininfo">0</span>
+	<img src="../ressources/icons/health.png" class="smallicon"/><span class="smallleft"  id="healthmaininfo">0</span>
+*/
+function loadSkillInfo(skill,target){
+	document.getElementById('icon'+target+'info').setAttribute('src','../ressources/skills/'+skill.getClassName()+'.png');
+	document.getElementById('name'+target+'info').innerHTML = l.text('skill'+skill.getClassName()+'name');
+	document.getElementById('desc'+target+'info').innerHTML = l.text('skill'+skill.getClassName()+'desc');
+	document.getElementById('power'+target+'info').innerHTML = skill.potent();
+	document.getElementById('endurance'+target+'info').innerHTML = skill.getEnduranceConsumption();
+	document.getElementById('mana'+target+'info').innerHTML = skill.getManaConsumption();
+	document.getElementById('mind'+target+'info').innerHTML = skill.getMindConsumption();
+	document.getElementById('health'+target+'info').innerHTML = skill.getHealthConsumption();
+}
+
+function hideSkillInfo(){
+	document.getElementById('skillmaininfo').style.display = 'none';
+}
+
+function hidePrevSkillInfo(){
+	let target = 'prev';
+	document.getElementById('icon'+target+'info').setAttribute('src','../ressources/skills/NoSkill.png');
+	document.getElementById('name'+target+'info').innerHTML = '';
+	document.getElementById('desc'+target+'info').innerHTML = '';
+	document.getElementById('power'+target+'info').innerHTML = '0';
+	document.getElementById('endurance'+target+'info').innerHTML = 0;
+	document.getElementById('mana'+target+'info').innerHTML = 0;
+	document.getElementById('mind'+target+'info').innerHTML = 0;
+	document.getElementById('health'+target+'info').innerHTML = 0;
 }
 
 function showMap(level){
@@ -752,10 +935,7 @@ function showMap(level){
 		mapview = document.getElementById('map'+level._id);
 	}
 	hideChildren('map'+level._id);
-		/*
-		<div class="mapView" id="wrapMap1">
-				<div class="mapView" id="map1">
-		*/
+
 	if(!document.getElementById('maplevel'+level._id+'_'+level.z) ){
 		let  maplevel = document.createElement('div');
 		maplevel.id = 'maplevel'+level._id+'_'+level.z;
@@ -916,7 +1096,21 @@ function showKeySlot(id,right,bottom){
 	document.getElementById('overWindow').appendChild(keyslot);
 }
 
+var answernumber = 0;
+function showAnswer(str,onclick,linecount = 1){
+	let answer = document.createElement('div');
+	answer.className = 'answerDialog';
+	answer.innerHTML = ' > '+str;
+	answer.style  = 'top : '+(120+answernumber*20)+'px;right:10px;height:'+(20*linecount)+'px;';
+	answernumber+=linecount;
+	answer.setAttribute('onclick',onclick);
+	document.getElementById('overWindow').appendChild(answer);
+}
 
+function clearOverWindow(){
+	answernumber = 0;
+	document.getElementById('overWindow').innerHTML = '';
+}
 
 
 
