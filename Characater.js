@@ -1,8 +1,8 @@
-class Save{
-	constructor() {
+class Character{
+	constructor(id) {
 		this.level = 1;
 		this.gold = 0;
-		
+		this.id = id;
 		
 		//Attributes
 		// https://en.wikipedia.org/wiki/Attribute_(role-playing_games)
@@ -46,14 +46,13 @@ class Save{
 		this.timeAttack = Math.floor(1000 * (50.0 / (10+this.speed)));
 	}
 	
-	
-	loadFromCookie(savename = ''){
-		var data = getCookie('save'+savename);
+	loadFromCookie(charname = 'zero'){
+		var data = getCookie('save'+charname);
 		if(data.length == 0){
 			return false;
 		}
 		var dataArray = data.split('/');
-		console.log('loading '+savename+', '+dataArray.length+' properties');
+		console.log('loading '+charname+', '+dataArray.length+' properties');
 		for(var i = 0;i<dataArray.length;i++){
 			
 			var variable = dataArray[i].split(':');
@@ -71,20 +70,19 @@ class Save{
 
 	}
 	
-	
-	saveInCookie(savename = ''){
-		console.log('saving '+savename);
+	saveInCookie(charname = ''){
+		console.log('saving '+charname);
 		var keys = Object.keys(this);
 		var savetext = '';
 		for(var i = 0;i<keys.length;i++){
 			//console.log('prop '+keys[i]);
 			savetext+=''+keys[i]+':'+this[keys[i]]+':'+(typeof this[keys[i]])+'/';
 		}
-		setCookie('save'+savename,savetext);
+		setCookie('save'+charname,savetext);
 	}
 	
 	showProperty(prop){			
-		var htmlout = document.getElementById(prop);
+		var htmlout = document.getElementById(prop+this.id);
 		if(htmlout){
 			htmlout.innerHTML = this[prop];
 		}

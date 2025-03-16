@@ -72,3 +72,13 @@
 	height : 400px;
 	background-color:#00FF7F;
 }
+.maxlifebar{
+	width:150px;
+	height:15px;
+	background-color:#202020;
+}
+.lifebar{
+	height:15px;
+	max-width:150px;
+	background-color:#FF0000;
+}

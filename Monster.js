@@ -7,7 +7,9 @@ class Monster{
 		this.spirit = 5;
 		this.wisdom = 5;
 		this.luck = 5;
+		this.speed = 5;
 		
+		this.isMonster = 1;
 		this.exp = 200;
 		this.id = id;
 		this.name = 'sampleMonster';
@@ -30,6 +32,7 @@ class Monster{
 		this.defense = 5;//changer par l'armure
 		this.precision = 10+this.perception*5;
 		this.dodge = 10+this.perception*5;
+		this.timeAttack = Math.floor(1000 * (50.0 / (10+this.speed)));
 	}
 	
 	
@@ -48,13 +51,31 @@ class Monster{
 		}
 	}
 	
+	modStat(stat,value){
+		var stats = ['health','endurance','mana','mind'];
+		if(stats.indexOf(stat) != -1){
+			this[stat] += value;
+			if(this[stat] > this['max'+stat]){
+				this[stat] = this['max'+stat];
+			}
+			if(this[stat] < 0){
+				this[stat] = 0;
+			}
+			
+			this.showProperty(stat);
+			return 1;
+
+		}
+		return -1;
+	}
+	
 	attackChar(){
 		if(this.health <=0){
 			return;
 		}
 		s.computeAttack(this,s);
 		console.log('attack '+this.id);
-		this.nextAttack = setTimeout('attackChar('+this.id+')',1000);
+		this.nextAttack = setTimeout('attackChar('+this.id+')',this.timeAttack);
 	}
 	
 	computeDeath(attacker){

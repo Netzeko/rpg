@@ -4,6 +4,7 @@
 <script src="toolbox.js"></script>
 <script src="Save.js"></script>
 <script src="Monster.js"></script>
+<script src="Skill.js"></script>
 <style>
 #character{
 	float:left;
@@ -56,12 +57,46 @@
 	var currentEnnemies = 0;
 	var ennemyCards = [null,null,null,null,null,null,null];
 	var partyCards = [null,null,null,null,null,null,null];
+	var skills = [];
+	skills['Heal'] = Heal;
 	
 	function nextFreeCard(cards){
 		for(var i =1;i<cards.length;i++){
 			if(cards[i] == null) return i;
 		}
 		return 0;
+	}
+	
+	function randomMonster(){
+		var res = Math.ceil( Math.random() * currentEnnemies);
+		for(var i = 1;i<ennemyCards.length;i++){
+			if(ennemyCards[i] != null){
+				res --;
+				if(!res){
+					return ennemyCards[i];
+				}
+			}
+		}
+		return null;
+	}
+	
+	function testrandm(){
+		var results = [];
+		for(var j=0;j<10000;j++){
+			var m  =randomMonster();
+			var id;
+			if(m == null){
+				id = 0;
+			}else{
+				id = m.id;
+			}
+			if(results[id]){
+				results[id]++;
+			}else{
+				results[id] = 1;
+			}
+		}
+		console.log(results);
 	}
 	
 	function addEnnemy(){
@@ -71,9 +106,10 @@
 			divE.id = 'monster'+idnext;
 			divE.className = 'divmonster';
 			divE.innerHTML = 
+			'<span id="monster'+idnext+'name"></span><br/>'+
 			'<img src="13.jpg" alt="Ennemy" height="150" width="150" id="imgennemy'+idnext+'"><br/>'+
-			'ennemy : <span id="monster'+idnext+'name"></span><br/>'+
-			'health : <span id="monster'+idnext+'health"></span>/<span id="monster'+idnext+'maxhealth"></span><br/>'+
+			'<div class="maxlifebar"><div class="lifebar" id="lifebarm'+idnext+'"></div></div>'+
+			//'health : <span id="monster'+idnext+'health"></span>/<span id="monster'+idnext+'maxhealth"></span><br/>'+
 			'<input type="button" value="attack" onclick="attackTarget(ennemies['+idnext+'])"/>';
 			
 			
@@ -85,6 +121,21 @@
 			//newm.attackChar();
 			idnext ++;
 			currentEnnemies++;
+		}
+	}
+	
+	function showBars(entity){
+		var maxw;
+		var suffix = '';
+		if(entity.isMonster){
+			suffix = 'm';
+			maxw = 150;
+		}else{
+			maxw = 75;
+		}
+		var w = Math.round(maxw * entity.health / entity.maxhealth);
+		if(document.getElementById('lifebar'+suffix+entity.id) ){
+			document.getElementById('lifebar'+suffix+entity.id).style.width = w+'px';
 		}
 	}
 	
@@ -112,11 +163,13 @@
 		}
 	}
 	
+	/*
 	function attackChar(monsterid){
 		if(ennemies[monsterid] != null){
 			ennemies[monsterid].attackChar();
 		}
 	}
+	*/
 	//setCookie('test','01');
 	console.log('save='+getCookie('save'));
 </script>
@@ -181,6 +234,8 @@
 			<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
 			luck : <span id="luck"></span>
 			<input type="button" value="+" onclick="upgrade('luck')"/><br/>
+			speed : <span id="speed"></span>
+			<input type="button" value="+" onclick="upgrade('speed')"/><br/>
 		</div>
 
 	</div>
