@@ -50,6 +50,7 @@ class Save{
 			if(listItems[i].length <= 0) continue;
 			var itemSave = listItems[i].split('_');
 			var item = new window[itemSave[0]](idnextitem++);
+			item._character = this;
 			this._items[item._id] = item;
 			
 			item.loadFromCookie(this.savename,itemSave[1]);
@@ -60,7 +61,7 @@ class Save{
 	}
 	
 	//temporaire, le temps de mettre en place un input text
-	_getMemberName(slot){
+	getMemberName(slot){
 		var arr = ['Zero','Kenshi','Leeroy','Rambo','Elminster','Alphonse','Tony'];
 		return arr[slot];
 	}
@@ -113,7 +114,7 @@ class Save{
 			return -1;
 		}
 		if(attacker.health > 0 && defenser.health > 0){
-			var damages = attacker.attack - defenser.defense;
+			var damages = Math.max(attacker.attack - defenser.defense,0);
 			var hit = (attacker.precision / defenser.dodge) *0.4;
 			
 			var res = 1.0-Math.random();
@@ -161,8 +162,8 @@ class Save{
 	init(){
 		console.log('Initialize');
 		this.loadFromCookie();
-		//this.startAutoAttack();
-		//setTimeout("regenerate()",1000);
+		this.startAutoAttack();
+		setTimeout("regenerate()",1000);
 
 		console.log('End initialize');
 	}
@@ -176,7 +177,8 @@ class Save{
 	}
 	
 	addItem(item){
-		this._items.push(item);
+		item._character = this;
+		this._items[item._id] = item;
 		//a completer pour save
 	}
 	
@@ -184,5 +186,52 @@ class Save{
 		this._items[item._id] = null;
 		//a completer pour save
 	}
+	
+	getMember(id){
+		for(var i = 0;i<this._partyMembers.length;i++){
+			if( !this._partyMembers[i]) continue;
+			if( this._partyMembers[i]._id == id){
+				return this._partyMembers[i];
+			}
+		}
+		return null;
+	}
+
+	getPartyLevel(countDead){
+		let c = 0;
+		for(var i = 0;i<this._partyMembers.length;i++){
+			//console.log(i);
+			if(this._partyMembers[i] && (!this._partyMembers[i].dead || countDead)){
+				c+= this._partyMembers[i].level;
+			}
+		}
+		return c;
+	}
+	
+	giveExpToAll(xp,countDead = 0){
+			console.log('give '+xp);
+		for(var i = 0;i<this._partyMembers.length;i++){
+			if(this._partyMembers[i] && (!this._partyMembers[i].dead || countDead)){
+				this._partyMembers[i].exp += xp;
+				this._partyMembers[i].totalexp += xp;
+				this._partyMembers[i].levelUp();
+				this._partyMembers[i].showProperty('exp');
+			}
+		}
+	}
 }
 
+/*
+//o objet appelant
+function saveArray(o,propName,arrayName,savename){
+	console.log('saving '+propName+'...');
+	o[propName] = '';
+	for(let i=0;i<o.[arrayName].length;i++){
+		if( !o.[arrayName][i]) continue;
+		console.log('index'+i);
+		o[propName] += o.[arrayName][i].getClassName()+'_'+this._quickSlots[i]._id+',';			
+		this._quickSlots[i].saveInCookie(savename);
+		
+	}
+}
+*/

@@ -52,7 +52,7 @@ function randomMonster(){
 function randomCharacter(){
 	var res = Math.ceil( Math.random() * currentMembers);
 	for(var i = 1;i<members.length;i++){
-		if(members[i] != null){
+		if(members[i] != null && !members[i].dead){
 			res --;
 			if(!res){
 				return members[i];
@@ -129,21 +129,6 @@ function removeEnnemy(id){
 	}
 }
 
-function showDead(id){
-//A modifier
-	document.getElementById('charStats'+id).className += ' dead';
-	//document.getElementById('character').style='background-color:#900000;';
-	members[id] = null;
-	currentMembers--;
-	/*
-	for(var i=1;i<ennemies.length;i++){
-		if(ennemies[i] != null){
-			removeEnnemy(i);
-		}
-	}
-	*/
-}
-
 function addSkill(sk){
 	if(typeof sk == 'function'){
 		skills[skills.length] = sk;
@@ -163,6 +148,9 @@ function initSkillbook(){
 function init(){
 	initSkillbook();
 	registerItem(HealPotion);
+	registerItem(QuiltedArmor);
+	registerItem(LeatherGloves);
+	registerItem(CopperRing);
 	s.init();
 }
 
@@ -216,13 +204,31 @@ function addPotion(){
 	var p = new window['HealPotion'](idnextitem++);
 	s.addItem(p);
 	items[p._id] = p;
-	addItemDiv(p._id);
+	addItemDiv(p);
+}
+function addArmor(){
+	var a = new window['QuiltedArmor'](idnextitem++);
+	s.addItem(a);
+	items[a._id] = a;
+	addItemDiv(a);
+	
+	
+	var b = new window['LeatherGloves'](idnextitem++);
+	s.addItem(b);
+	items[b._id] = b;
+	addItemDiv(b);
+}
+function addItemFromName(itemname){
+	var item = new window[itemname](idnextitem++);
+	s.addItem(item);
+	items[item._id] = item;
+	addItemDiv(item);
 }
 
 //Appelé depuis la sauvegarde, lors du chargement
 function addItem(item){
 	items[item._id] = item;
-	addItemDiv(item._id);
+	addItemDiv(item);
 }
 
 function selectItem(id){
@@ -239,7 +245,7 @@ function useItem(){
 }
 
 function removeItem(item){
-	s.removeItem(item);
+	item._character.removeItem(item);
 	items[item._id] = null;
 	removeItemDiv(item._id);
 	if(selectedItem && selectedItem._id == item._id){
@@ -247,5 +253,9 @@ function removeItem(item){
 	}
 }
 
+function resurrectMember(){
+	if(!targetedChar || targetedChar.isMonster )return;
+	targetedChar.resurrect();
+}
 
 

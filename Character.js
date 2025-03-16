@@ -1,51 +1,30 @@
-class Character{
+class Character extends Creature{
 	constructor(name,id) {
-		this.level = 1;
-		this._id = id;
+		super(name,id);
 		
-		//Attributes
-		// https://en.wikipedia.org/wiki/Attribute_(role-playing_games)
-		this.strength = 5;
-		this.constitution = 5;
-		this.dexterity = 5;
-		this.perception = 5;
-		this.spirit = 5;
-		this.wisdom = 5;
-		this.luck = 5;
-		this.speed = 5;
-		
-		this.calculateStats(true);
-		
+		this.isCharacter = 1;
 		this.exp = 0;
 		this.totalexp = 0;
 		this.skillpoints = 0;
 		this.points = 0;
-		this.name = name;
+		
 		this.dead = 0;
 		this.regeneration = 1;
 		this.skillsLearned = '';
 		this._skills = [];
+		this.maxqslot = 6;
+		this._quickSlots = [null,null,null,null,null,null];
+		this.maxequip = 12
+		this._equipSlots = [null,null,null,null,null,null,
+												null,null,null,null,null,null];
+		this._equipSlotsNames = ['headgear','right hand','armor','left hand','gloves','necklace',
+														'belt','bracelet','pants','ring','boots','ring' ];
+		this._equipSlotsType = ['headgear','hand','armor','hand','gloves','necklace',
+														'belt','bracelet','pants','ring','boots','ring' ];
+		
+		
 
-	}
-	
-	calculateStats(refresh = false){
-		this.maxhealth = 10+this.level+this.constitution*8;
-		this.maxendurance = 10+this.level+this.strength*8;
-		this.maxmana = 10+this.level+this.wisdom*8;
-		this.maxmind = 10+this.level+this.spirit*8;
 		
-		if(refresh){
-			this.health = this.maxhealth;
-			this.endurance = this.maxendurance;
-			this.mana = this.maxmana;
-			this.mind = this.maxmind;
-		}
-		
-		this.attack = (this.strength / 5)*10;//changer par l'attaque de l'arme
-		this.defense = 5;//changer par l'armure
-		this.precision = 10+this.dexterity*5;
-		this.dodge = 10+this.perception*5;
-		this.timeAttack = Math.floor(1000 * (50.0 / (10+this.speed)));
 	}
 	
 	loadFromCookie(savename=''){
@@ -72,11 +51,48 @@ class Character{
 		}
 		
 		this.loadSkills();
-
+		this.loadQuickSlots(savename);
+		this.loadEquipments(savename);
+	}
+	
+	loadQuickSlots(savename){
+		console.log('Loading qslots...');
+		//var listItems = this.itemList.split(',');
+		for(var i = 0;i<this.maxqslot;i++){
+			if(!this['qslot'+i]) continue;
+			let itemSave = this['qslot'+i].split('_');
+			let item = new window[itemSave[0]](idnextitem++);
+			this._quickSlots[i] = item;
+			items[item._id] = item;
+			item._character = this;
+			item.loadFromCookie(savename,itemSave[1]);
+			this['qslot'+i] = null;
+			//addItem(item);
+		}
+	}
+	
+	loadEquipments(savename){
+		console.log('Loading equipments...');
+		//var listItems = this.itemList.split(',');
+		for(var i = 0;i<this.maxequip;i++){
+			if(!this['equip'+i]) continue;
+			let itemSave = this['equip'+i].split('_');
+			let item = new window[itemSave[0]](idnextitem++);
+			this._equipSlots[i] = item;
+			items[item._id] = item;
+			item._character = this;
+			item.loadFromCookie(savename,itemSave[1]);
+			this['equip'+i] = null;
+			//addItem(item);
+		}
 	}
 	
 	saveInCookie(savename=''){
 		console.log('saving '+this.name);
+		
+		this.saveQuickSlots(savename);
+		this.saveEquipments(savename);
+
 		var keys = Object.keys(this);
 		var savetext = '';
 		for(var i = 0;i<keys.length;i++){
@@ -85,6 +101,28 @@ class Character{
 			savetext+=''+keys[i]+':'+this[keys[i]]+':'+(typeof this[keys[i]])+'/';
 		}
 		setCookie('save'+savename+'char'+this.name,savetext);
+	}
+	
+	saveQuickSlots(savename){
+		console.log('saving quickslots...');
+		//this.qslotList = '';
+		for(let i=0;i<this._quickSlots.length;i++){
+			if( !this._quickSlots[i]) continue;
+			console.log('index'+i);
+			//this.qslotList += this._quickSlots[i].getClassName()+'_'+this._quickSlots[i]._id+',';			
+			this._quickSlots[i].saveInCookie(savename);
+			this['qslot'+i] = this._quickSlots[i].getClassName()+'_'+this._quickSlots[i]._id;
+		}
+	}
+	
+	saveEquipments(savename){
+		console.log('saving equipments...');
+		for(let i=0;i<this._equipSlots.length;i++){
+			if( !this._equipSlots[i]) continue;
+			console.log('index'+i);
+			this._equipSlots[i].saveInCookie(savename);
+			this['equip'+i] = this._equipSlots[i].getClassName()+'_'+this._equipSlots[i]._id;
+		}
 	}
 	
 	showProperty(prop){			
@@ -204,6 +242,53 @@ class Character{
 		console.log('You are dead');
 	}
 	
+	resurrect(){
+		if(!this.dead) return;
+		this.dead = 0;
+		this.health = 1;
+		this.regeneration = 1;
+		showAlive(this._id);
+	}
+	
+	removeItem(item){
+		console.log('character removeitem');
+		if(item.usable && this._quickSlots.indexOf(item) > -1){
+			this._quickSlots[this._quickSlots.indexOf(item)] = null;
+			return 1;
+		}else if(item.equipment && this._equipSlots.indexOf(item) > -1){
+			console.log('character removeitem : found');
+			item.unequip();
+			//this._equipSlots[this._equipSlots.indexOf(item)] = null;
+			return 1;
+		}
+		return 0;
+	}
+	
+	addItem(item,slot){
+		//console.log(item);
+		//console.log(slot);
+		if(slot <100 ){
+			if(this._quickSlots[slot]) return 0;//TODO : inverser equipement si deja pris
+			if(this._quickSlots.indexOf(item) > -1){
+				this._quickSlots[this._quickSlots.indexOf(item)] = null;
+			}
+			else if(item._character){
+				item._character.removeItem(item);
+			}
+			item._character = this;
+			this._quickSlots[slot] = item;
+			return 1;
+		}else{ //Equipement
+			slot -=100;
+			if(this._equipSlots[slot]) return 0;
+			item.unequip();
+			item.equip(this,slot);
+			item._character = this;
+			return 1;
+
+		}
+	}
+	
 	upgrade(attr){
 		var attributes = ['strength','constitution','dexterity','perception','spirit','wisdom','luck','speed'];
 		if(attributes.indexOf(attr) != -1){
@@ -277,7 +362,7 @@ class Character{
 
 			s.computeAttack(this,m);
 		}else{
-			console.log(this.name+' : i don\'t know...');
+			//console.log(this.name+' : i don\'t know...');
 		}
 		setTimeout('doAction("c",'+this._id+')',this.timeAttack);
 	}

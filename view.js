@@ -6,7 +6,7 @@ function showBars(entity){
 		maxw = 150;
 	}else{
 		suffix = 'c';
-		maxw = 75;
+		maxw = 99;
 	}
 	var whealth = Math.round(maxw * entity.health / entity.maxhealth);
 	if(document.getElementById('healthbar'+suffix+entity._id) ){
@@ -54,9 +54,8 @@ function addSkillBookWindow(skillbook){
 
 function changeSelectedDisplay(id){
 	hideChildren('characterWindow');
-	show('charStats'+id);
+	show('charPanel'+id);
 }
-
 
 function hideChildren(parentNode){
 	var children = document.getElementById(parentNode).children;
@@ -65,8 +64,6 @@ function hideChildren(parentNode){
 	}
 }
 
-
-
 //c instance Character
 function addCharacter(c,slot){
 	
@@ -74,13 +71,13 @@ function addCharacter(c,slot){
 		divC.id = 'char'+c._id;
 		divC.className = 'divcharacter';
 		divC.innerHTML = 
-		'<span id="char'+c._id+'name"></span><br/>'+
-		'<img src="char.png" alt="Member" height="100" width="100" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')"><br/>'+
+		'<span class="charName" id="char'+c._id+'name">'+c.name+'</span><br/>'+
+		'<img src="charSample.jpg" alt="Member" class="charImg" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')">'+
+		'<input type="button" value="select" onclick="selectChar('+c._id+')"/>'+
 		'<div class="maxbarc"><div class="healthbar barc" id="healthbarc'+c._id+'"></div></div>'+
 		'<div class="maxbarc"><div class="endurancebar barc" id="endurancebarc'+c._id+'"></div></div>'+
 		'<div class="maxbarc"><div class="manabar barc" id="manabarc'+c._id+'"></div></div>'+
-		'<div class="maxbarc"><div class="mindbar barc" id="mindbarc'+c._id+'"></div></div>'+
-		'<input type="button" value="select" onclick="selectChar('+c._id+')"/>';
+		'<div class="maxbarc"><div class="mindbar barc" id="mindbarc'+c._id+'"></div></div>';
 
 		//divC.setAttribute('');
 		document.getElementById('party'+slot+'card').appendChild(divC);
@@ -90,11 +87,27 @@ function addCharacter(c,slot){
 		currentMembers++;
 		c.regenerate();
 		
-		var divStatC = document.createElement('div');
-		divStatC.id = 'charStats'+c._id;
-		divStatC.className = 'charStats';
-		divStatC.innerHTML = 
+		let qslotdiv = '';
+		for(let i=0;i<c.maxqslot;i++){
+			qslotdiv += '<div id="qslot'+c._id+'_'+i+'" class="qslot" ondrop="dropItem(event)" ondragover="allowDrop(event)"></div>';
+		}
 		
+		let equipdiv = '';
+		for(let i=0;i<c.maxequip;i++){
+			equipdiv += '<div class="equipmentrow">'+
+			'<div id="equip'+c._id+'_'+i+'" class="equip" ondrop="dropItem(event)" ondragover="allowDrop(event)"></div>'+
+			'<br/>['+c._equipSlotsNames[i]+']'+
+			'</div>';
+		}
+		
+		var divStatC = document.createElement('div');
+		divStatC.id = 'charPanel'+c._id;
+		divStatC.className = 'charPanel';
+		divStatC.innerHTML = 
+		'<input type="button" value="Characteritics & Skills" onclick="hideChildren(\'charPanel'+c._id+'\');show(\'charStats'+c._id+'\')"/>'+
+		'<input type="button" value="Equipment" onclick="hideChildren(\'charPanel'+c._id+'\');show(\'equip'+c._id+'\')"/>'+
+		'<hr class="clearFloat"/>'+
+		'<div id="charStats'+c._id+'" class="charSubPanel">'+
 		'<div class="character">'+
 		'	name : <span id="name'+c._id+'"></span><br/>'+
 		'	level : <span id="level'+c._id+'"></span><br/>'+
@@ -108,26 +121,39 @@ function addCharacter(c,slot){
 		'<div class="attributes">'+
 		'available points : <span id="points'+c._id+'"></span><br/>'+
 		'	strength : <span id="strength'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_strength'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'strength\')"/><br/>'+
 		'	constitution : <span id="constitution'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_constitution'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'constitution\')"/><br/>'+
 		'	dexterity : <span id="dexterity'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_dexterity'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'dexterity\')"/><br/>'+
 		'	perception : <span id="perception'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_perception'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'perception\')"/><br/>'+
 		'	spirit : <span id="spirit'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_spirit'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'spirit\')"/><br/>'+
 		'	wisdom : <span id="wisdom'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_wisdom'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'wisdom\')"/><br/>'+
 		'	luck : <span id="luck'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_luck'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'luck\')"/><br/>'+
 		'	speed : <span id="speed'+c._id+'"></span>'+
+		' <span class="modifier">(+<span id="modifier_speed'+c._id+'"></span>)</span>'+
 		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'speed\')"/><br/>'+
 		'</div>'+
 		'<hr class="clearFloat"/>'+
 		'<div id="skills'+c._id+'"></div>'+
-		'<input type="button" value="use item" onclick="useItem()"/>';
-		
+		'<input type="button" value="use item" onclick="useItem()"/>'+
+		'<hr class="clearFloat"/>'+
+		qslotdiv+
+		'</div>'+
+		'<div id="equip'+c._id+'" class="charSubPanel" style="display:none;">'+
+		equipdiv+
+		'</div>';
 		//var charSkills = c._skills;
 		
 		
@@ -138,6 +164,16 @@ function addCharacter(c,slot){
 		
 		c.showProperties();
 	
+		for(let i=0;i<c._quickSlots.length;i++){
+			if(!c._quickSlots[i]) continue;
+			addItemDiv(c._quickSlots[i],'qslot'+c._id+'_'+i);
+		}
+		
+		for(let i=0;i<c._equipSlots.length;i++){
+			if(!c._equipSlots[i]) continue;
+			addItemDiv(c._equipSlots[i],'equip'+c._id+'_'+i);
+		}
+
 }
 
 
@@ -178,17 +214,21 @@ function addEnnemy(){
 	}
 }
 
-function addItemDiv(id){
+function addItemDiv(item,target = 'inventoryWindow'){
 	var e = document.createElement('div');
 	e.className='item';
-	e.id = 'item'+id;
+	//e.itemid = item._id;
+	e.id = 'item'+item._id;
+	e.draggable = 'true';
+	e.ondragstart = dragItem;
+	e.item = item;
 	e.innerHTML = 
-	'<img src="potion.png" class="itemImg" onclick="selectItem('+id+')"/>';
-	document.getElementById('inventoryWindow').appendChild(e);
+	'<img src="'+item.getClassName()+'.png" class="itemImg" onclick="selectItem('+item._id+')" draggable="false" ondrop="" id="itemImg'+item._id+'"/>';
+	document.getElementById(target).appendChild(e);
 }
 
 function removeItemDiv(id){
-	document.getElementById('inventoryWindow').removeChild(document.getElementById('item'+id));
+	document.getElementById('item'+id).parentNode.removeChild(document.getElementById('item'+id));
 }
 
 function showSelectionItem(id){
@@ -200,6 +240,113 @@ function showSelectionItem(id){
 
 	document.getElementById('item'+id).className += ' selecteditem';
 }
+
+function showDead(id){
+//A modifier
+	document.getElementById('charStats'+id).className += ' dead';
+	//document.getElementById('character').style='background-color:#900000;';
+	//members[id] = null;
+	currentMembers--;
+	/*
+	for(var i=1;i<ennemies.length;i++){
+		if(ennemies[i] != null){
+			removeEnnemy(i);
+		}
+	}
+	*/
+}
+
+function showAlive(id){
+//A modifier
+	document.getElementById('charStats'+id).classList.remove('dead');
+	//document.getElementById('character').style='background-color:#900000;';
+	//members[id] = s.getMember(id);
+	currentMembers++;
+	
+	/*
+	for(var i=1;i<ennemies.length;i++){
+		if(ennemies[i] != null){
+			removeEnnemy(i);
+		}
+	}
+	*/
+}
+
+function allowDrop(ev){
+    ev.preventDefault();
+}
+
+function dragItem(ev){
+  ev.dataTransfer.setData("id", ev.target.id);
+  ev.dataTransfer.setData("type", 'item');
+  ev.dataTransfer.setData("from", ev.target.parentNode.id);
+}
+
+function dropItem(ev){
+    ev.preventDefault();
+		let dtype = ev.dataTransfer.getData("type");
+		if(dtype != 'item') return false;
+console.log('drop');
+		let target = ev.target;
+		//Le node qui reçoit l'event peut être un enfant de la vraie cible
+		while(target.className != 'equip' 
+			&& target.className != 'qslot' 
+			&& target.id != 'inventoryWindow' 
+			&& target.parentNode){
+			target = target.parentNode;
+		}
+		console.log('remonte au parent');
+		if(target.children.length && target.id != 'inventoryWindow'){
+			console.log('occupé');
+			return false;
+		}
+		    
+    let id = ev.dataTransfer.getData("id");
+		let item = document.getElementById(id).item;
+    let fromdiv = ev.dataTransfer.getData("from");
+		if(fromdiv == target.id){
+			console.log('source=cible');
+			return false;
+		}
+		console.log('cherche cible');
+		let targetObj = null;
+		let targetSlot = 0;
+		
+		if(target.id.startsWith('qslot') ){
+			console.log('consomable?');
+			if(!item.usable) return 0;
+			console.log('consomable!');
+			let targetChar = target.id.substr(5).split('_');
+			targetSlot = targetChar[1];
+			targetObj = members[targetChar[0]];
+			
+		}
+		else if(target.id.startsWith('equip') ){console.log('equipslot');
+			console.log('equipement?');
+			if(!item.equipment) return 0;
+			console.log('equipement!');
+			console.log('ok');
+			let targetChar = target.id.substr(5).split('_');
+			targetSlot = Number(targetChar[1])+100;
+			targetObj = members[targetChar[0]];
+			if(targetObj.isCharacter && item.armorSlot != targetObj._equipSlotsType[targetChar[1]]){
+				console.log('wrong slot');
+				return 0;
+				
+			}
+
+		}
+		else if(target.id == 'inventoryWindow'){
+			console.log('inventaire');
+			targetObj = s;
+		}
+		console.log('fin');
+		console.log(item);
+		item._character.removeItem(item);
+		targetObj.addItem(item,targetSlot);
+		target.appendChild(document.getElementById(id));
+}
+
 
 
 

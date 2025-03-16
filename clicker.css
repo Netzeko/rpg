@@ -20,6 +20,16 @@
 	border:1px solid black;
 	float:left;
 }
+.charImg{
+	max-height:152px;
+	max-width:120px;
+	float:left;
+}
+.charName{
+	diisplay:block;
+	margin:6px;
+	font-size:19px;
+}
 #travelWindow{
 	width : 600px;
 	height : 400px;
@@ -76,22 +86,23 @@
 }
 
 .barm{
-	height:15px;
+	height:12px;
 	max-width:150px;
 }
 .barc{
-	height:15px;
-	max-width:75px;
+	height:12px;
+	max-width:99px;
 }
 .maxbarm{
 	width:150px;
-	height:15px;
+	height:12px;
 	background-color:#202020;
 }
 .maxbarc{
-	width:75px;
-	height:15px;
+	width:99px;
+	height:12px;
 	background-color:#202020;
+	boorder : 1px solid white;
 	float:left;
 }
 .healthbar{
@@ -110,10 +121,12 @@
 .character{
 	float:left;
 	padding : 10px;
+	padding-top: 0px;
 }
 .attributes{
 	float:left;
 	padding : 10px;
+	padding-top: 0px;
 
 }
 
@@ -125,7 +138,7 @@
 	background-color:#500000 !important;
 }
 
-.charStats{
+.charPanel{
 	background-color:yellow;
 	width:400px;
 	height:400px;
@@ -138,17 +151,49 @@
 }
 
 .item{
-	width:68px;
-	height:68px;
+	width:38px;
+	height:38px;
 	border:1px solid black;
 	float:left;
 }
 
 .itemImg{
-	width:68px;
-	height:68px;
+	display: block;
+	max-width:38px;
+	max-height:38px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .selectedItem{
 	border:1px solid red !important;
+}
+
+.qslot{
+	width : 40px;
+	height : 40px;
+	float:left;
+	boorder:1px solid black;
+	background-color:lightgrey;
+	margin : 2px;
+}
+.equip{
+	width : 40px;
+	height : 40px;
+	float:left;
+
+	background-color:lightgrey;
+	margin : 2px;
+}
+
+.equipmentrow{
+	width : 170px;
+	height : 40px;
+		margin : 2px;
+
+	float:left;
+}
+
+.modifier{
+	font-size:12px;
 }

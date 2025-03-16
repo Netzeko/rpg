@@ -1,41 +1,53 @@
-class Monster{
+class Monster extends Creature{
 	constructor(id) {
-		this.strength = 2;
-		this.constitution = 2;
-		this.dexterity = 10;
-		this.perception = 4;
-		this.spirit = 5;
-		this.wisdom = 5;
-		this.luck = 5;
-		this.speed = 8;
+		super('sampleMonster',id);
 		
 		this.isMonster = 1;
-		this.exp = 200;
-		this._id = id;
-		this.name = 'sampleMonster';
+		this.exp = 70;
+
+		this.upToPartyLevel();
 		this.calculateStats();
-		
-	}
-	
-	calculateStats(){
-		//console.log('calcStats');
-		this.maxhealth = 10+this.constitution*8;
-		this.health = this.maxhealth;
-		this.maxendurance = 10+this.strength*8;
-		this.endurance = this.maxendurance;
-		this.maxmana = 10+this.wisdom*8;
-		this.mana = this.maxmana;
-		this.maxmind = 10+this.spirit*8;
-		this.mind = this.maxmind;
-		
-		this.attack = (this.strength / 5)*10;//changer par l'attaque de l'arme
-		this.defense = 5;//changer par l'armure
-		this.precision = 10+this.perception*5;
-		this.dodge = 10+this.perception*5;
-		this.timeAttack = Math.floor(1000 * (50.0 / (10+this.speed)));
 	}
 	
 	
+	
+	upToPartyLevel(){
+		let plevel = Math.max(s.getPartyLevel(),1);
+		let p = 10*(plevel-1);
+		//console.log('plevel='+s.getPartyLevel()+' points='+p);
+		this.exp = 50+8*plevel;
+		let ok = 1;
+		while(ok){
+			let r = Math.floor(Math.random()*8);
+			if(this[this.getAttribute(r)] <= p){
+				//console.log('up='+this.getAttribute(r));
+
+				p-=this[this.getAttribute(r)];
+				this[this.getAttribute(r)] ++;
+				
+			}
+			else{
+				//console.log('nup='+this.getAttribute(r));
+				ok = 0;
+				for(let j=1;j<8;j++){
+					let n =  (r+j)%8 ;
+					if(this[this.getAttribute(n)] <= p){
+						//console.log('finally up='+this.getAttribute(n));
+						p-=this[this.getAttribute(n)];
+						this[this.getAttribute(n)] ++;
+						ok = 1;
+					}
+				}
+			}
+		}
+		
+	}
+	
+	
+	
+	lowestAttribute(){
+		//maybe ?
+	}
 	
 	showProperty(prop){			
 		var htmlout = document.getElementById('monster'+this._id+prop);
@@ -96,10 +108,13 @@ class Monster{
 	computeDeath(attacker){
 		//Todo:gerer si un monstre en tue un autre
 		//donner l'exp au groupe, pas au perso
-		attacker.exp += this.exp;
+		s.giveExpToAll(this.exp);
+		
+		/*attacker.exp += this.exp;
 		attacker.totalexp += this.exp;
 		attacker.levelUp();
 		attacker.showProperty('exp');
+		*/
 		clearTimeout(this.nextAttack);
 		removeEnnemy(this._id);
 		return 2;

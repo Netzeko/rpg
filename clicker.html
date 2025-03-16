@@ -3,6 +3,7 @@
 </head>
 <script src="toolbox.js"></script>
 <script src="view.js"></script>
+<script src="Creature.js"></script>
 <script src="Character.js"></script>
 <script src="Save.js"></script>
 <script src="Monster.js"></script>
@@ -53,6 +54,7 @@
 		<input type="button" value="attack" onclick="attackTarget()"/>
 		<input type="button" value="add member" onclick="addPartyMember()"/>
 		<input type="button" value="add potion" onclick="addPotion()"/>
+		<input type="button" value="resurrect member" onclick="resurrectMember()"/>
 	</div>
 	<div id="partyWindow">
 			<div id="party2card" class="partyCard"></div>
@@ -67,7 +69,7 @@
 	<div id="lateralWindow" class="lateralSubWindow">
 		<div id="targetWindow" class="lateralSubWindow"></div>
 		<div id="mapWindow" class="lateralSubWindow" style="display:none"></div>
-		<div id="inventoryWindow" class="lateralSubWindow" style="display:none"></div>
+		<div id="inventoryWindow" class="lateralSubWindow" style="display:none" ondrop="dropItem(event)" ondragover="allowDrop(event)"></div>
 	</div>
 	<div id="rightMenu">
 		<input type="button" value="inventory" onclick="showLateralWindow('inventoryWindow')"/>
