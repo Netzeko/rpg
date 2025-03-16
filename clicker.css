@@ -365,6 +365,7 @@
 	line-height:25px;
 	background-color:rgba(255,255,255,0.6);
 	text-align:center;
+	cursor:pointer;
 }
 .skillicon{
 	width:40px;
@@ -490,12 +491,75 @@
 	height:90px;
 	background-color:rgba(255,255,255,0.7);
 }
+body{
+	background-color:black;
+}
+#indexcenter{
+	width:600px;
+	height:360px;
+	margin:auto;
+	padding-left : 200px;
+	padding-right : 200px;
+	padding-top : 100px;
+	padding-bottom : 100px;
+	background-image:url("../ressources/bg/index.png");
+}
+#savelist{
+	width:250px;
+	height:360px;
+	float:left;
+}
+.saveslot{
+	width:225px;
+	height:25px;
+	text-align:center;
+	color:white;
+	border:1px solid grey;
+	background-color:rgba(255,255,255,0.2);
+	margin:10px;
+	cursor:pointer;
+}
+.spritesave{
+	width:180px;
+	height:240px;
+	margin:auto;
+	display:block;
+}
+#savedata{
+	width:350px;
+	height:360px;
+	float:left;
+	position:relative;
+}
+.savedata{
+	position:relative;
+}
+.saveinfowrapper{
+	width:350px;
+	text-align:center;
 
-
-
-
-
-
-
-
+}
+.saveinfo{
+	display:inline-block;
+	height:20px;
+	color:white;
+}
+.mediumicon{
+	float:left;
+	width:24px;
+	height:24px;
+}
+.mediumtext{
+	float:left;
+	margin-left:5px;
+	margin-right:5px;
+	font-size:20px;
+}
+.arrowtop{
+	position:absolute;
+	width:40px;
+	height:40px;
+	top:0px;
+	cursor:pointer;
+}
 

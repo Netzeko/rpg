@@ -68,12 +68,7 @@ function changeSelectedDisplay(id){
 	show('charPanel'+id);
 }
 
-function hideChildren(parentNode){
-	let children = document.getElementById(parentNode).children;
-	for(let i =0;i<children.length;i++){
-		hide(children[i].id);
-	}
-}
+
 
 
 function characterPrioRow(c,row,rownumber){
@@ -200,7 +195,7 @@ function addCharacter(c,slot){
 		divC.character = c;
 		divC.innerHTML = 
 		'<span class="charName" id="char'+c._id+'name">'+c.name+'</span><br/>'+
-		'<img src="../ressources/char/swordman1.png" alt="Member" class="charImg" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')">'+
+		'<img src="../ressources/char/'+c.sprite+'.png" alt="Member" class="charImg" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')">'+
 		'<input type="button" value="select" onclick="selectChar('+c._id+')"/>'+
 		'<div class="maxbarc"><div class="healthbar barc" id="healthbarc'+c._id+'"></div></div>'+
 		'<div class="maxbarc"><div class="endurancebar barc" id="endurancebarc'+c._id+'"></div></div>'+

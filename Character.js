@@ -14,13 +14,13 @@ class Character extends Creature{
 		this._skills = [];
 		this.maxqslot = 9;
 		this._quickSlots = [null,null,null,null,null,null,null,null,null];
-		this.maxequip = 12
-		this._equipSlots = [null,null,null,null,null,null,
-												null,null,null,null,null,null];
-		this._equipSlotsNames = ['headgear','rhand','armor','lhand','gloves','necklace',
-														'belt','bracelet','pants','ring','boots','ring' ];
-		this._equipSlotsType = ['headgear','hand','armor','hand','gloves','necklace',
-														'belt','bracelet','pants','ring','boots','ring' ];
+		this.maxequip = 10
+		this._equipSlots = [null,null,null,null,null,
+												null,null,null,null,null];
+		this._equipSlotsNames = ['headgear','rhand','armor','lhand','gloves',
+														'necklace','belt','ring','boots','ring' ];
+		this._equipSlotsType = ['headgear','hand','armor','hand','gloves',
+														'necklace','belt','ring','boots','ring' ];
 		this.imageid = 1;
 		this._prio = [ ['1m','t','100','Attack','rm'] ];
 		
@@ -72,6 +72,11 @@ class Character extends Creature{
 		this.loadSkills();
 		this.loadQuickSlots(savename);
 		this.loadEquipments(savename);
+		
+		for(let i=0;i<this.maxqskill;i++){
+			if(!this['qskill'+i])continue;
+			this._quickSkills[i] = this['qskill'+i];
+		}
 	}
 	
 	loadQuickSlots(savename){
@@ -108,6 +113,11 @@ class Character extends Creature{
 		
 		this.saveQuickSlots(savename);
 		this.saveEquipments(savename);
+		
+		for(let i=0;i<this._quickSkills.length;i++){
+			if(!this._quickSkills[i])continue;
+			this['qskill'+i] = this._quickSkills[i];
+		}
 		
 		for(let i =0;i<this._prio.length;i++){
 			this['prio'+i] = this._prio[i][0]+'_'+this._prio[i][1]+'_'+this._prio[i][2]+'_'+this._prio[i][3]+'_'+this._prio[i][4];

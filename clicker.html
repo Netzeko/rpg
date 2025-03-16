@@ -136,7 +136,7 @@
 
 <div id="changeqskill" style="display:none" onmouseleave="this.style.display='none'">
 	<div id="skillprevinfo" class="skillinfo" >
-		<img src="" class="skillicon" style="float: left;" id="iconprevinfo"/>
+		<img src="../ressources/skills/NoSkill.png" class="skillicon" style="float: left;" id="iconprevinfo"/>
 		<div class="containerVCenter">
 			<span class="verticalalign"  id="nameprevinfo"></span>
 		</div>
@@ -149,7 +149,7 @@
 		<img src="../ressources/icons/health.png" class="smallicon"/><span class="smallleft"  id="healthprevinfo"></span>
 	</div>
 	<div id="skillnextinfo" class="skillinfo">
-		<img src="" class="skillicon" style="float: left;" id="iconnextinfo"/>
+		<img src="../ressources/skills/NoSkill.png" class="skillicon" style="float: left;" id="iconnextinfo"/>
 		<div class="containerVCenter">
 			<span class="verticalalign"  id="namenextinfo"></span>
 		</div>
@@ -188,7 +188,9 @@
 	<input type="button" value="clear save" onclick="localStorage.clear()"/>
 	<input type="button" value="animationOff" onclick="renderanimation = 0;"/>
 	<input type="button" value="animationOn" onclick="renderanimation = 1;"/>
-
+<hr class="clearFloat"/>
+<textarea id="savediv" ></textarea>
+<input type="button" value="load from string" onclick="loadFromString()"/>
 
 
 <script>

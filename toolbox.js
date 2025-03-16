@@ -1,6 +1,7 @@
 var lskeys = [];
 var lsdatalength = 0;
 var lsnamelength = 0;
+var saveasstring = 0;
 function setCookie(cname, cval) {
 	/*
 	var a = new Date();
@@ -11,6 +12,9 @@ function setCookie(cname, cval) {
 	lsdatalength += cval.length ;
 	lsnamelength += cname.length ;
 	localStorage.setItem(cname,cval);
+	if(saveasstring){
+		document.getElementById('savediv').innerHTML += cname+'='+cval+'#\n';
+	}
 }
 
 function getCookie(cname){
@@ -108,9 +112,16 @@ function testrandm(f){
 	console.log(results);
 }
 
+function hideChildren(parentId){
+	let children = document.getElementById(parentId).children;
+	for(let i =0;i<children.length;i++){
+		hide(children[i].id);
+	}
+}
+
 function clearChildren(node){
 	while (node.firstChild) {
-			node.removeChild(node.firstChild);
+		node.removeChild(node.firstChild);
 	}
 }
 

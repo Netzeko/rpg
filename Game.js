@@ -1,5 +1,5 @@
 class Game{
-	constructor(savename) {
+	constructor(savename,saveslot = 1) {
 		this._nextCharId = 1;
 		this._partyMembers = [null];
 		this.listPartyMembers = 'zero,'
@@ -21,6 +21,10 @@ class Game{
 		this._spawnareas = [];
 		this.autoregen = 1;
 		this.invisible = 0;
+		this.saveslot = 1;
+		this.timespent = 0;
+		this._starttime  = new Date().getTime();
+		this._oldtime = 0;
 		this._priotargetcond = [
 			['',''],
 			['1m','At least 1 ennemy'],
@@ -102,13 +106,15 @@ class Game{
 		this._village.createMenu('villageWindow');
 		
 		let slot = 1;
-		let c = new Character(this.getMemberName(1),this._nextCharId ++);
+		let c = new Character(window.charname,this._nextCharId ++);
 		c.initChar();
+		c.sprite = window.charimage
 		this.listPartyMembers = c.name+',';
 		this._partyMembers[this._partyMembers.length] = c;
 		this._numberMember++;
 		addCharacter(c,slot++);
 		
+		this.savename = window.savename;
 		this.gold = 200;
 	}
 	
@@ -119,14 +125,14 @@ class Game{
 	
 	loadFromCookie(){
 		console.log('Loading from cookie...');
-		let data = getCookie('save'+this.savename);
+		let data = getCookie('save'+this.saveslot);
 		if(!data || data.length == 0){
 			console.log('...no data');
 			this.newSave();
 			return;
 		}else{
 			let dataArray = data.split('/');
-			console.log('loading '+this.savename+', '+dataArray.length+' properties');
+			console.log('loading '+this.saveslot+', '+dataArray.length+' properties');
 			for(let i = 0;i<dataArray.length;i++){
 				let variable = dataArray[i].split(':');
 				if(variable[0].length ==0) continue;
@@ -144,7 +150,7 @@ class Game{
 						let l = new window[variable[1]](variable[0].substr(8),this,this._nextLevelId++);
 						this._levels.push(l);
 						this._levels[l.name] = l;
-						l.loadFromCookie(this.savename);
+						l.loadFromCookie(this.saveslot);
 					}
 				}
 			}
@@ -157,7 +163,7 @@ class Game{
 			let c = new Character(listNames[i],this._nextCharId++,this);
 			this._partyMembers[this._partyMembers.length] = c;
 			this._numberMember++;
-			c.loadFromCookie(this.savename);
+			c.loadFromCookie(this.saveslot);
 			addCharacter(c,slot++);
 		}
 		
@@ -170,7 +176,7 @@ class Game{
 			item._character = this;
 			this._items[item._id] = item;
 			
-			item.loadFromCookie(this.savename,itemSave[1]);
+			item.loadFromCookie(this.saveslot,itemSave[1]);
 			addItem(item);
 		}
 		
@@ -189,9 +195,10 @@ class Game{
 		
 		console.log('Loading village...');
 		this._village = new Village(this);
-		this._village.loadFromCookie(this.savename);
+		this._village.loadFromCookie(this.saveslot);
 		this._village.createMenu('villageWindow');
 		
+		this._oldtime = this.spenttime;
 		console.log('Loading done');
 
 	}
@@ -214,7 +221,8 @@ class Game{
 	}
 	
 	saveInCookie(){
-		console.log('saving '+this.savename);
+		console.log('saving '+this.saveslot);
+		this.spenttime = this._oldtime + (new Date().getTime() - this._starttime)/1000;
 		
 		//On commence par les objets pour générer la liste des cookies à charger
 		console.log('saving items...');
@@ -223,14 +231,14 @@ class Game{
 		for(let i = 0;i<this._items.length;i++){
 			if( !this._items[i]) continue;
 			this.itemList += this._items[i].getClassName()+'_'+this._items[i]._id+',';
-			this._items[i].saveInCookie(this.savename);
+			this._items[i].saveInCookie(this.saveslot);
 		}
 		
 		//Sauvegarde des maps
 		for(let i = 0;i<this._levels.length;i++){
 			if(!this._levels[i]) continue;
 			//Format 'ClasseDeLaMap_nom de la map'
-			this._levels[i].saveInCookie(this.savename);
+			this._levels[i].saveInCookie(this.saveslot);
 			this['levelmap'+this._levels[i].name] = this._levels[i].getClassName();
 		}
 		if(this._currentMap){
@@ -246,16 +254,18 @@ class Game{
 			//console.log('prop '+keys[i]);
 			savetext+=''+keys[i]+':'+this[keys[i]]+':'+(typeof this[keys[i]])+'/';
 		}
-		setCookie('save'+this.savename,savetext);
+		setCookie('save'+this.saveslot,savetext);
 		
 		for(let i = 1;i<this._partyMembers.length;i++){
 			if( !this._partyMembers[i]) continue;
-			this._partyMembers[i].saveInCookie(this.savename);
+			this._partyMembers[i].saveInCookie(this.saveslot);
 		}
 		
-		this._village.saveInCookie(this.savename);
+		this._village.saveInCookie(this.saveslot);
 
-		
+		//Save pour l'accueil
+		savetext = 'savename:'+this.savename+':s/'+'time:'+this.spenttime+':n/'+'level:'+this._partyMembers[1].level+':n/'+'sprite:'+this._partyMembers[1].imageid+':n/'+'name:'+this._partyMembers[1].name+':s/';
+		setCookie('slot'+this.saveslot,savetext);
 	}
 	
 	/*Retourne -1 si impossible, 0 si manqué, 1 si touché, 2 si mort*/
@@ -317,8 +327,9 @@ class Game{
 		}
 	}
 	
-	init(){
+	init(saveslot){
 		console.log('Initialize');
+		this.saveslot = saveslot;
 		this.loadFromCookie();
 		this.startAutoAttack();
 		setTimeout("g.regenerate()",1000);

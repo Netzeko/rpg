@@ -22,6 +22,12 @@ var currentGroup = null;
 var l = new Language('French');
 
 var renderanimation = 1;
+
+var currentSaveSlot = 1;
+var savename = null;
+var charname = null;
+var charimage = null;
+
 function attackTarget(){
 	if(selectedChar && targetedChar){
 		let result = s.computeAttack(selectedChar,targetedChar);
@@ -150,18 +156,45 @@ function initSkillbook(){
 
 var currentSave = 'save0';
 function save(){
+	document.getElementById('savediv').innerHTML = '';
 	lskeys = [];
 	lsdatalength = 0;
 	lsnamelength = 0;
+	saveasstring = 1;
 	g.saveInCookie(currentSave);
-	
+	saveasstring = 0;
 	console.log('Saved '+lskeys.length+' objects, total size of '+lsdatalength+' + '+lsnamelength);
+}
+
+function loadFromString(){
+	let vars = document.getElementById('savediv').value.split('#\n');
+	saveasstring = 0;
+	for(let i=0;i<vars.length;i++){
+		if(!vars[i])continue;
+		let myvar = vars[i].split('=');
+		console.log('settings '+myvar[0]);
+		setCookie(myvar[0],myvar[1]);
+	}
+	saveasstring = 1;
 }
 
 var l;
 var inAnimation = 0;
 
+
 function init(){
+	let sslot = getCookie('currentSaveSlot');
+	if(sslot) currentSaveSlot = sslot;
+	
+	savename = getCookie('newsavename');
+	if(!savename) savename = 'save'+currentSaveSlot;
+	
+	charname = getCookie('newcharname');
+	if(!charname) charname = 'Zero';
+	
+	charimage = getCookie('charimage');
+	if(!charimage) charimage = '1';
+	
 	initSkillbook();
 	registerItem(HealPotion);
 	registerItem(QuiltedArmor);
@@ -171,7 +204,7 @@ function init(){
 	registerItem(RoughSaphire);
 	
 
-	g.init();
+	g.init(currentSaveSlot);
 	
 	//a changer par le niveau courant
 	/*
