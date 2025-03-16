@@ -49,17 +49,15 @@
 	float:left;
 }
 #lateralWindow{
+}
+.lateralSubWindow{
 	width : 400px;
 	height : 400px;
 }
 #mapWindow{
-	width : 400px;
-	height : 400px;
 	background-color:#FF4500;
 }
 #targetWindow{
-	width : 400px;
-	height : 400px;
 	background-color:#802080;
 }
 #rightMenu{
@@ -71,6 +69,10 @@
 	width : 400px;
 	height : 400px;
 	background-color:#00FF7F;
+}
+#inventoryWindow{
+	background-color:#A0A0A0;
+	overflow-y: scroll;
 }
 
 .barm{
@@ -105,28 +107,6 @@
 	background-color:#FF00FF;	
 }
 
-/*
-.maxlifebarm{
-	width:150px;
-	height:15px;
-	background-color:#202020;
-}
-.maxlifebarc{
-	width:75;
-	height:15px;
-}
-.lifebarm{
-	height:15px;
-	max-width:150px;
-	background-color:#FF0000;
-}
-.lifebarc{
-	height:15px;
-	max-width:75px;
-	background-color:#FF0000;
-}
-*/
-
 .character{
 	float:left;
 	padding : 10px;
@@ -155,4 +135,20 @@
 	background-color:purple;
 	width:400px;
 	height:400px;
+}
+
+.item{
+	width:68px;
+	height:68px;
+	border:1px solid black;
+	float:left;
+}
+
+.itemImg{
+	width:68px;
+	height:68px;
+}
+
+.selectedItem{
+	border:1px solid red !important;
 }

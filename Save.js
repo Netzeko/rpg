@@ -6,6 +6,8 @@ class Save{
 		this.savename = savename;
 		this.gold = 0;
 		this._numberMember = 0;
+		this.itemList = '';
+		this._items = [];
 	}
 	
 	
@@ -41,6 +43,18 @@ class Save{
 			c.loadFromCookie(this.savename);
 			addCharacter(c,slot++);
 		}
+		
+		console.log('Loading items...');
+		var listItems = this.itemList.split(',');
+		for(var i = 0;i<listItems.length;i++){
+			if(listItems[i].length <= 0) continue;
+			var itemSave = listItems[i].split('_');
+			var item = new window[itemSave[0]](idnextitem++);
+			this._items[item._id] = item;
+			
+			item.loadFromCookie(this.savename,itemSave[1]);
+			addItem(item);
+		}
 		console.log('Loading done');
 
 	}
@@ -63,6 +77,19 @@ class Save{
 	
 	saveInCookie(){
 		console.log('saving '+this.savename);
+		
+		//On commence par les objets pour générer la liste des cookies à charger
+		console.log('saving items...');
+		console.log(this._items);
+		this.itemList = '';
+		for(var i = 0;i<this._items.length;i++){
+			console.log('index'+i);
+			if( !this._items[i]) continue;
+			this.itemList += this._items[i].getClassName()+'_'+this._items[i]._id+',';
+			this._items[i].saveInCookie(this.savename);
+		}
+		
+		
 		var keys = Object.keys(this);
 		var savetext = '';
 		for(var i = 0;i<keys.length;i++){
@@ -76,6 +103,8 @@ class Save{
 			if( !this._partyMembers[i]) continue;
 			this._partyMembers[i].saveInCookie(this.savename);
 		}
+		
+		
 	}
 	
 	/*Retourne -1 si impossible, 0 si manqué, 1 si touché, 2 si mort*/
@@ -132,7 +161,9 @@ class Save{
 	init(){
 		console.log('Initialize');
 		this.loadFromCookie();
-		this.startAutoAttack();
+		//this.startAutoAttack();
+		//setTimeout("regenerate()",1000);
+
 		console.log('End initialize');
 	}
 	
@@ -142,6 +173,16 @@ class Save{
 				this._partyMembers[i].doAction();
 			}
 		}
+	}
+	
+	addItem(item){
+		this._items.push(item);
+		//a completer pour save
+	}
+	
+	removeItem(item){
+		this._items[item._id] = null;
+		//a completer pour save
 	}
 }
 

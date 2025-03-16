@@ -13,9 +13,10 @@ var targetedChar = null;
 var ennemyCards = [null,null,null,null,null,null,null];
 var partyCards = [null,null,null,null,null,null,null];
 var skills = [];
-
-
-
+var knownItems = [];
+var idnextitem = 1;
+var selectedItem = null;
+var items = [];
 
 function attackTarget(){
 	if(selectedChar && targetedChar){
@@ -69,7 +70,7 @@ function testrandm(){
 		if(m == null){
 			id = 0;
 		}else{
-			id = m.id;
+			id = m._id;
 		}
 		if(results[id]){
 			results[id]++;
@@ -107,7 +108,7 @@ function target(side,id,slot){
 function getCard(monsterId){
 	for(var i =1;i<ennemyCards.length;i++){
 		if(ennemyCards[i] != null
-		&& ennemyCards[i].id == monsterId) return i;
+		&& ennemyCards[i]._id == monsterId) return i;
 	}
 	return 0;
 }
@@ -118,10 +119,10 @@ function removeEnnemy(id){
 	ennemyCards[getCard(id)] = null;
 	currentEnnemies--;
 	//Si la cible est morte, on en prend une autre au hasard
-	if(targetedChar && targetedChar.id == id){
+	if(targetedChar && targetedChar._id == id){
 		var m = randomMonster();
 		if(m){
-			target('ennemy',m.id,m.slot)
+			target('ennemy',m._id,m.slot)
 		}else{
 			target('ennemy',0,0);
 		}
@@ -155,29 +156,14 @@ function initSkillbook(){
 	addSkill(Heal);
 	addSkill(Fireball);
 	addSkill(Meditate);
-	/*
-	if(typeof Heal == 'function'){
-		availableSkills[availableSkills.length] = Heal;
-		availableSkills['Heal'] = Heal;
-	}
-	if(typeof Fireball == 'function'){
-		availableSkills[availableSkills.length] = Fireball;
-		availableSkills['Fireball'] = Fireball;
-	}
-	if(typeof Meditate == 'function'){
-		availableSkills[availableSkills.length] = Meditate;
-		availableSkills['Meditate'] = Meditate;
-	}*/
+
 	addSkillBookWindow(skills);
-	//return availableSkills;
 }
 
 function init(){
 	initSkillbook();
+	registerItem(HealPotion);
 	s.init();
-	setTimeout("regenerate()",1000);
-
-//console.log(m);
 }
 
 function learnSkill(skillname){
@@ -214,4 +200,52 @@ function doAction(type,id){
 		user.doAction();
 	}
 }
+
+function registerClass(cl){
+	window[cl.staticClassName()] = cl;
+	//maintenant on peut instancier en faisant o = new window['MyClass']
+}
+
+function registerItem(itemClass){
+	knownItems.push(itemClass);
+	registerClass(itemClass);
+}
+
+//for test purpose only
+function addPotion(){
+	var p = new window['HealPotion'](idnextitem++);
+	s.addItem(p);
+	items[p._id] = p;
+	addItemDiv(p._id);
+}
+
+//Appelé depuis la sauvegarde, lors du chargement
+function addItem(item){
+	items[item._id] = item;
+	addItemDiv(item._id);
+}
+
+function selectItem(id){
+	selectedItem = items[id];
+	showSelectionItem(id);
+}
+
+function useItem(){
+	if(!selectedItem || !targetedChar || !selectedChar) return;
+	if(selectedItem.use(selectedChar,targetedChar)){
+		console.log('USED');
+		removeItem(selectedItem);
+	}
+}
+
+function removeItem(item){
+	s.removeItem(item);
+	items[item._id] = null;
+	removeItemDiv(item._id);
+	if(selectedItem && selectedItem._id == item._id){
+		selectedItem = null;
+	}
+}
+
+
 

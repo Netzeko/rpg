@@ -9,20 +9,20 @@ function showBars(entity){
 		maxw = 75;
 	}
 	var whealth = Math.round(maxw * entity.health / entity.maxhealth);
-	if(document.getElementById('healthbar'+suffix+entity.id) ){
-		document.getElementById('healthbar'+suffix+entity.id).style.width = whealth+'px';
+	if(document.getElementById('healthbar'+suffix+entity._id) ){
+		document.getElementById('healthbar'+suffix+entity._id).style.width = whealth+'px';
 	}
 	var wendurance = Math.round(maxw * entity.endurance / entity.maxendurance);
-	if(document.getElementById('endurancebar'+suffix+entity.id) ){
-		document.getElementById('endurancebar'+suffix+entity.id).style.width = wendurance+'px';
+	if(document.getElementById('endurancebar'+suffix+entity._id) ){
+		document.getElementById('endurancebar'+suffix+entity._id).style.width = wendurance+'px';
 	}
 	var wmana = Math.round(maxw * entity.mana / entity.maxmana);
-	if(document.getElementById('manabar'+suffix+entity.id) ){
-		document.getElementById('manabar'+suffix+entity.id).style.width = wmana+'px';
+	if(document.getElementById('manabar'+suffix+entity._id) ){
+		document.getElementById('manabar'+suffix+entity._id).style.width = wmana+'px';
 	}
 	var wmind = Math.round(maxw * entity.mind / entity.maxmind);
-	if(document.getElementById('mindbar'+suffix+entity.id) ){
-		document.getElementById('mindbar'+suffix+entity.id).style.width = wmind+'px';
+	if(document.getElementById('mindbar'+suffix+entity._id) ){
+		document.getElementById('mindbar'+suffix+entity._id).style.width = wmind+'px';
 	}
 }
 
@@ -57,6 +57,7 @@ function changeSelectedDisplay(id){
 	show('charStats'+id);
 }
 
+
 function hideChildren(parentNode){
 	var children = document.getElementById(parentNode).children;
 	for(var i =0;i<children.length;i++){
@@ -70,68 +71,69 @@ function hideChildren(parentNode){
 function addCharacter(c,slot){
 	
 		var divC = document.createElement('div');
-		divC.id = 'char'+c.id;
+		divC.id = 'char'+c._id;
 		divC.className = 'divcharacter';
 		divC.innerHTML = 
-		'<span id="char'+c.id+'name"></span><br/>'+
-		'<img src="char.png" alt="Member" height="100" width="100" id="imgchar'+c.id+'" onclick="target(\'party\','+c.id+','+slot+')"><br/>'+
-		'<div class="maxbarc"><div class="healthbar barc" id="healthbarc'+c.id+'"></div></div>'+
-		'<div class="maxbarc"><div class="endurancebar barc" id="endurancebarc'+c.id+'"></div></div>'+
-		'<div class="maxbarc"><div class="manabar barc" id="manabarc'+c.id+'"></div></div>'+
-		'<div class="maxbarc"><div class="mindbar barc" id="mindbarc'+c.id+'"></div></div>'+
-		'<input type="button" value="select" onclick="selectChar('+c.id+')"/>';
+		'<span id="char'+c._id+'name"></span><br/>'+
+		'<img src="char.png" alt="Member" height="100" width="100" id="imgchar'+c._id+'" onclick="target(\'party\','+c._id+','+slot+')"><br/>'+
+		'<div class="maxbarc"><div class="healthbar barc" id="healthbarc'+c._id+'"></div></div>'+
+		'<div class="maxbarc"><div class="endurancebar barc" id="endurancebarc'+c._id+'"></div></div>'+
+		'<div class="maxbarc"><div class="manabar barc" id="manabarc'+c._id+'"></div></div>'+
+		'<div class="maxbarc"><div class="mindbar barc" id="mindbarc'+c._id+'"></div></div>'+
+		'<input type="button" value="select" onclick="selectChar('+c._id+')"/>';
 
 		//divC.setAttribute('');
 		document.getElementById('party'+slot+'card').appendChild(divC);
 		
 		partyCards[slot] = c;
-		members[c.id] = c;
+		members[c._id] = c;
 		currentMembers++;
 		c.regenerate();
 		
 		var divStatC = document.createElement('div');
-		divStatC.id = 'charStats'+c.id;
+		divStatC.id = 'charStats'+c._id;
 		divStatC.className = 'charStats';
 		divStatC.innerHTML = 
 		
 		'<div class="character">'+
-		'	name : <span id="name'+c.id+'"></span><br/>'+
-		'	level : <span id="level'+c.id+'"></span><br/>'+
-		'	health : <span id="health'+c.id+'"></span>/<span id="maxhealth'+c.id+'"></span><br/>'+
-		'	endurance : <span id="endurance'+c.id+'"></span>/<span id="maxendurance'+c.id+'"></span><br/>'+
-		'	mana : <span id="mana'+c.id+'"></span>/<span id="maxmana'+c.id+'"></span><br/>'+
-		'	mind : <span id="mind'+c.id+'"></span>/<span id="maxmind'+c.id+'"></span><br/>'+
-		'	exp : <span id="exp'+c.id+'"></span><br/>'+
-		' skillpoints : <span id="skillpoints'+c.id+'"></span><br/>'+
+		'	name : <span id="name'+c._id+'"></span><br/>'+
+		'	level : <span id="level'+c._id+'"></span><br/>'+
+		'	health : <span id="health'+c._id+'"></span>/<span id="maxhealth'+c._id+'"></span><br/>'+
+		'	endurance : <span id="endurance'+c._id+'"></span>/<span id="maxendurance'+c._id+'"></span><br/>'+
+		'	mana : <span id="mana'+c._id+'"></span>/<span id="maxmana'+c._id+'"></span><br/>'+
+		'	mind : <span id="mind'+c._id+'"></span>/<span id="maxmind'+c._id+'"></span><br/>'+
+		'	exp : <span id="exp'+c._id+'"></span><br/>'+
+		' skillpoints : <span id="skillpoints'+c._id+'"></span><br/>'+
 		'</div>'+
 		'<div class="attributes">'+
-		'available points : <span id="points'+c.id+'"></span><br/>'+
-		'	strength : <span id="strength'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'strength\')"/><br/>'+
-		'	constitution : <span id="constitution'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'constitution\')"/><br/>'+
-		'	dexterity : <span id="dexterity'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'dexterity\')"/><br/>'+
-		'	perception : <span id="perception'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'perception\')"/><br/>'+
-		'	spirit : <span id="spirit'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'spirit\')"/><br/>'+
-		'	wisdom : <span id="wisdom'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'wisdom\')"/><br/>'+
-		'	luck : <span id="luck'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'luck\')"/><br/>'+
-		'	speed : <span id="speed'+c.id+'"></span>'+
-		'	<input type="button" value="+" onclick="upgrade('+c.id+',\'speed\')"/><br/>'+
+		'available points : <span id="points'+c._id+'"></span><br/>'+
+		'	strength : <span id="strength'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'strength\')"/><br/>'+
+		'	constitution : <span id="constitution'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'constitution\')"/><br/>'+
+		'	dexterity : <span id="dexterity'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'dexterity\')"/><br/>'+
+		'	perception : <span id="perception'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'perception\')"/><br/>'+
+		'	spirit : <span id="spirit'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'spirit\')"/><br/>'+
+		'	wisdom : <span id="wisdom'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'wisdom\')"/><br/>'+
+		'	luck : <span id="luck'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'luck\')"/><br/>'+
+		'	speed : <span id="speed'+c._id+'"></span>'+
+		'	<input type="button" value="+" onclick="upgrade('+c._id+',\'speed\')"/><br/>'+
 		'</div>'+
 		'<hr class="clearFloat"/>'+
-		'<div id="skills'+c.id+'"></div>';
+		'<div id="skills'+c._id+'"></div>'+
+		'<input type="button" value="use item" onclick="useItem()"/>';
 		
 		//var charSkills = c._skills;
 		
 		
 		divStatC.style.display = 'none';
 		document.getElementById('characterWindow').appendChild(divStatC);
-		showSkillsChar(c.id);
+		showSkillsChar(c._id);
 
 		
 		c.showProperties();
@@ -175,3 +177,32 @@ function addEnnemy(){
 		newm.doAction();
 	}
 }
+
+function addItemDiv(id){
+	var e = document.createElement('div');
+	e.className='item';
+	e.id = 'item'+id;
+	e.innerHTML = 
+	'<img src="potion.png" class="itemImg" onclick="selectItem('+id+')"/>';
+	document.getElementById('inventoryWindow').appendChild(e);
+}
+
+function removeItemDiv(id){
+	document.getElementById('inventoryWindow').removeChild(document.getElementById('item'+id));
+}
+
+function showSelectionItem(id){
+	var selected = document.getElementsByClassName('selecteditem');
+	for(var i =0;i<selected.length;i++){
+		selected[i].classList.remove("selecteditem");
+	}
+	if(!id) return;
+
+	document.getElementById('item'+id).className += ' selecteditem';
+}
+
+
+
+
+
+

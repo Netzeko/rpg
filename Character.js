@@ -1,7 +1,7 @@
 class Character{
 	constructor(name,id) {
 		this.level = 1;
-		this.id = id;
+		this._id = id;
 		
 		//Attributes
 		// https://en.wikipedia.org/wiki/Attribute_(role-playing_games)
@@ -88,7 +88,7 @@ class Character{
 	}
 	
 	showProperty(prop){			
-		var htmlout = document.getElementById(prop+this.id);
+		var htmlout = document.getElementById(prop+this._id);
 		if(htmlout){
 			htmlout.innerHTML = this[prop];
 		}
@@ -99,7 +99,7 @@ class Character{
 		for(var i = 0;i<keys.length;i++){
 			this.showProperty(keys[i]);
 		}
-		showSkillsChar(this.id);
+		showSkillsChar(this._id);
 		showBars(this);
 	}
 	
@@ -200,7 +200,7 @@ class Character{
 	computeDeath(){
 		this.dead = 1;
 		this.regeneration = 0;
-		showDead(this.id);
+		showDead(this._id);
 		console.log('You are dead');
 	}
 	
@@ -279,7 +279,7 @@ class Character{
 		}else{
 			console.log(this.name+' : i don\'t know...');
 		}
-		setTimeout('doAction("c",'+this.id+')',this.timeAttack);
+		setTimeout('doAction("c",'+this._id+')',this.timeAttack);
 	}
 	
 	

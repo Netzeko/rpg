@@ -1,6 +1,24 @@
+class Skill{
+	static use(user,target){
+		if(Heal.possible(user)){
+			user.modStat('mana', -Heal.getManaConsumption() );
+			target.modStat('health', 15 );
+			return 1;
+		}
+		return 0;
+	}
+	static possible(user){
+		return 0;
+	}
+	static getName(){return 'Skill';}
+	static getClassName(){return 'Skill';}
+	static getHealthConsumption(){return 0;}
+	static getEnduranceConsumption(){return 0;}
+	static getManaConsumption(){return 0;}
+	static getMindConsumption(){return 0;}
+}
 
-
-class Heal{
+class Heal extends Skill{
 	static use(user,target){
 		if(Heal.possible(user)){
 			user.modStat('mana', -Heal.getManaConsumption() );
@@ -14,17 +32,15 @@ class Heal{
 	}
 	static getName(){return 'Heal';}
 	static getClassName(){return 'Heal';}
-	static getHealthConsumption(){return 0;}
-	static getEnduranceConsumption(){return 0;}
+
 	static getManaConsumption(){
 		return 10;
 	}
-	static getMindConsumption(){return 0;}
 
 }
 
 
-class Fireball{
+class Fireball extends Skill{
 	static use(user,target){
 		if(Fireball.possible(user)){
 			user.modStat('mana', -Fireball.getManaConsumption() );
@@ -38,18 +54,15 @@ class Fireball{
 	}
 	static getName(){return 'Fireball';}
 	static getClassName(){return 'Fireball';}
-	static getHealthConsumption(){return 0;}
-	static getEnduranceConsumption(){return 0;}
 	static getManaConsumption(){
 		return 10;
 	}
-	static getMindConsumption(){return 0;}
 	
 	
 }
 
 		
-class Meditate{
+class Meditate extends Skill{
 	static use(user,target){
 		if(Meditate.possible(user)){
 			user._inMeditateCooldown = 1;
@@ -66,10 +79,6 @@ class Meditate{
 	}
 	static getName(){return 'Meditate';}
 	static getClassName(){return 'Meditate';}
-	static getHealthConsumption(){return 0;}
-	static getEnduranceConsumption(){return 0;}
-	static getManaConsumption(){return 0;}
-	static getMindConsumption(){return 0;}
 	static clearDelay(user){
 		if(Meditate.possible(user)){
 			console.log('already cleared');
@@ -77,6 +86,5 @@ class Meditate{
 		user._inMeditateCooldown = 0;
 		console.log('ok cleared');
 	}
-	//Renvoie vrai si l'utilisateur peux lancer la compétence
 
 }

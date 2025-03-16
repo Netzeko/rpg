@@ -1,7 +1,7 @@
 class Monster{
 	constructor(id) {
-		this.strength = 15;
-		this.constitution = 7;
+		this.strength = 2;
+		this.constitution = 2;
 		this.dexterity = 10;
 		this.perception = 4;
 		this.spirit = 5;
@@ -11,7 +11,7 @@ class Monster{
 		
 		this.isMonster = 1;
 		this.exp = 200;
-		this.id = id;
+		this._id = id;
 		this.name = 'sampleMonster';
 		this.calculateStats();
 		
@@ -38,7 +38,7 @@ class Monster{
 	
 	
 	showProperty(prop){			
-		var htmlout = document.getElementById('monster'+this.id+prop);
+		var htmlout = document.getElementById('monster'+this._id+prop);
 		if(htmlout){
 			htmlout.innerHTML = this[prop];
 		}
@@ -85,12 +85,12 @@ class Monster{
 		
 		var c = randomCharacter();
 		if(c){
-			console.log(this.name+this.id+' attack '+c.name);
+			console.log(this.name+this._id+' attack '+c.name);
 			s.computeAttack(this,c);
 		}else{
 			console.log(this.name+' : i\'m hungry !');
 		}
-		setTimeout('doAction("m",'+this.id+')',this.timeAttack);
+		setTimeout('doAction("m",'+this._id+')',this.timeAttack);
 	}
 	
 	computeDeath(attacker){
@@ -101,7 +101,7 @@ class Monster{
 		attacker.levelUp();
 		attacker.showProperty('exp');
 		clearTimeout(this.nextAttack);
-		removeEnnemy(this.id);
+		removeEnnemy(this._id);
 		return 2;
 	}
 }

@@ -7,6 +7,7 @@
 <script src="Save.js"></script>
 <script src="Monster.js"></script>
 <script src="Skill.js"></script>
+<script src="Items.js"></script>
 <script src="main.js"></script>
 <style>
 #character{
@@ -51,6 +52,7 @@
 		<input type="button" value="Summon monster" onclick="addEnnemy()"/>
 		<input type="button" value="attack" onclick="attackTarget()"/>
 		<input type="button" value="add member" onclick="addPartyMember()"/>
+		<input type="button" value="add potion" onclick="addPotion()"/>
 	</div>
 	<div id="partyWindow">
 			<div id="party2card" class="partyCard"></div>
@@ -62,14 +64,13 @@
 	</div>
 </div>
 <div id="rightPanel">
-	<div id="lateralWindow">
-		<div id="targetWindow">
-		</div>
-		<div id="mapWindow" style="display:none">
-		</div>
+	<div id="lateralWindow" class="lateralSubWindow">
+		<div id="targetWindow" class="lateralSubWindow"></div>
+		<div id="mapWindow" class="lateralSubWindow" style="display:none"></div>
+		<div id="inventoryWindow" class="lateralSubWindow" style="display:none"></div>
 	</div>
 	<div id="rightMenu">
-		<input type="button" value="learned skills" onclick="showSkills()"/>
+		<input type="button" value="inventory" onclick="showLateralWindow('inventoryWindow')"/>
 	</div>
 	<div id="characterWindow">
 		<!-- Sera rempli dynamiquement -->
