@@ -45,7 +45,7 @@
 #rightPanel{
 	width : 400px;
 	height : 850px;
-	background-color:#208020;
+	baackground-color:#208020;
 	float:left;
 }
 #lateralWindow{
@@ -72,13 +72,87 @@
 	height : 400px;
 	background-color:#00FF7F;
 }
-.maxlifebar{
+
+.barm{
+	height:15px;
+	max-width:150px;
+}
+.barc{
+	height:15px;
+	max-width:75px;
+}
+.maxbarm{
 	width:150px;
 	height:15px;
 	background-color:#202020;
 }
-.lifebar{
+.maxbarc{
+	width:75px;
+	height:15px;
+	background-color:#202020;
+	float:left;
+}
+.healthbar{
+	background-color:#FF0000;
+}
+.endurancebar{
+	background-color:#FFFF00;	
+}
+.manabar{
+	background-color:#0000FF;	
+}
+.mindbar{
+	background-color:#FF00FF;	
+}
+
+/*
+.maxlifebarm{
+	width:150px;
+	height:15px;
+	background-color:#202020;
+}
+.maxlifebarc{
+	width:75;
+	height:15px;
+}
+.lifebarm{
 	height:15px;
 	max-width:150px;
 	background-color:#FF0000;
+}
+.lifebarc{
+	height:15px;
+	max-width:75px;
+	background-color:#FF0000;
+}
+*/
+
+.character{
+	float:left;
+	padding : 10px;
+}
+.attributes{
+	float:left;
+	padding : 10px;
+
+}
+
+.selected{
+	border:1px solid red !important;
+}
+
+.dead{
+	background-color:#500000 !important;
+}
+
+.charStats{
+	background-color:yellow;
+	width:400px;
+	height:400px;
+}
+
+#skillbookWindow{
+	background-color:purple;
+	width:400px;
+	height:400px;
 }

@@ -1,7 +1,6 @@
 class Character{
-	constructor(id) {
+	constructor(name,id) {
 		this.level = 1;
-		this.gold = 0;
 		this.id = id;
 		
 		//Attributes
@@ -15,14 +14,17 @@ class Character{
 		this.luck = 5;
 		this.speed = 5;
 		
-		this.calculateStats();
+		this.calculateStats(true);
 		
 		this.exp = 0;
 		this.totalexp = 0;
+		this.skillpoints = 0;
 		this.points = 0;
-		this.playername = 'Zero';
+		this.name = name;
 		this.dead = 0;
 		this.regeneration = 1;
+		this.skillsLearned = '';
+		this._skills = [];
 
 	}
 	
@@ -46,19 +48,20 @@ class Character{
 		this.timeAttack = Math.floor(1000 * (50.0 / (10+this.speed)));
 	}
 	
-	loadFromCookie(charname = 'zero'){
-		var data = getCookie('save'+charname);
+	loadFromCookie(savename=''){
+		var data = getCookie('save'+savename+'char'+this.name);
 		if(data.length == 0){
 			return false;
 		}
 		var dataArray = data.split('/');
-		console.log('loading '+charname+', '+dataArray.length+' properties');
+		console.log('loading '+this.name+', '+dataArray.length+' properties');
 		for(var i = 0;i<dataArray.length;i++){
 			
 			var variable = dataArray[i].split(':');
 			if(variable[0].length ==0) continue;
+			if(variable.length < 3) continue;
 			
-			console.log('prop '+variable[0]+'='+variable[1]+' ('+variable[2]+')');
+			//console.log('loading prop '+variable[0]+'='+variable[1]+' ('+variable[2]+')');
 			if(variable[2].localeCompare('number') == 0){
 				this[variable[0]] = Number(variable[1]);
 			}else if(variable[2].localeCompare('string') == 0){
@@ -67,18 +70,21 @@ class Character{
 			//console.log('saved as '+typeof this[variable[0]]);
 			
 		}
+		
+		this.loadSkills();
 
 	}
 	
-	saveInCookie(charname = ''){
-		console.log('saving '+charname);
+	saveInCookie(savename=''){
+		console.log('saving '+this.name);
 		var keys = Object.keys(this);
 		var savetext = '';
 		for(var i = 0;i<keys.length;i++){
-			//console.log('prop '+keys[i]);
+			if(keys[i][0] == '_') continue;
+			//console.log('saving prop '+keys[i]);
 			savetext+=''+keys[i]+':'+this[keys[i]]+':'+(typeof this[keys[i]])+'/';
 		}
-		setCookie('save'+charname,savetext);
+		setCookie('save'+savename+'char'+this.name,savetext);
 	}
 	
 	showProperty(prop){			
@@ -93,6 +99,8 @@ class Character{
 		for(var i = 0;i<keys.length;i++){
 			this.showProperty(keys[i]);
 		}
+		showSkillsChar(this.id);
+		showBars(this);
 	}
 	
 	regenerate(){
@@ -127,8 +135,10 @@ class Character{
 				}
 				this.showProperty('mind');
 			}
+			showBars(this);
 		}
-		setTimeout("s.regenerate()",1000);
+		
+		//setTimeout("regenerate()",1000);
 	}
 	
 	autoAttack(){
@@ -150,6 +160,7 @@ class Character{
 			}
 			
 			this.showProperty(stat);
+			showBars(this);
 			return 1;
 
 		}
@@ -192,7 +203,7 @@ class Character{
 	computeDeath(){
 		this.dead = 1;
 		this.regeneration = 0;
-		showDead();
+		showDead(this.id);
 		console.log('You are dead');
 	}
 	
@@ -221,6 +232,7 @@ class Character{
 			this.exp -= this.neededExp();
 			this.level ++;
 			this.points += 20;
+			this.skillpoints += 1;
 			this.calculateStats();
 			this.showProperties();
 			return 1;
@@ -233,6 +245,34 @@ class Character{
 		return Math.random() * 300.0 < 15+this.luck;
 	}
 	
+	
+	learnSkill(skill){
+		if(this._skills.indexOf(skill) != -1){
+			console.log('skill already learned');
+			return;
+		}
+		if(this.skillpoints <= 0){
+			console.log('no skillpoint');
+			return;
+		}
+		this._skills[this._skills.length] = skill;
+		this._skills[skill.getClassName()] = skill;
+		this.skillsLearned += skill.getClassName()+',';
+		this.skillpoints--;
+		this.showProperties();
+	}
+	
+	loadSkills(){
+		console.log('loading skills for '+this.name);
+		this._skills = [];
+		var listNames = this.skillsLearned.split(',');
+		for(var i=0;i<listNames.length;i++){
+			if(listNames[i].length <= 0) continue;
+			console.log('-adding '+listNames[i]);
+			this._skills[this._skills.length] = skills[listNames[i]];
+			this._skills[listNames[i]] = skills[listNames[i]];
+		}
+	}
 	
 	init(){
 		console.log('Initialize');

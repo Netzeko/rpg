@@ -63,6 +63,7 @@ class Monster{
 			}
 			
 			this.showProperty(stat);
+			showBars(this);
 			return 1;
 
 		}

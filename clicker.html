@@ -2,9 +2,12 @@
 <link rel="stylesheet" type="text/css" href="clicker.css">
 </head>
 <script src="toolbox.js"></script>
+<script src="view.js"></script>
+<script src="Character.js"></script>
 <script src="Save.js"></script>
 <script src="Monster.js"></script>
 <script src="Skill.js"></script>
+<script src="main.js"></script>
 <style>
 #character{
 	float:left;
@@ -29,139 +32,9 @@
 
 <script>
 	
-	var s = new Save();
-	s.loadFromCookie();
-	var m;
 	
 	
-	function summon(){
-		m = new Monster(0);
-		m.showProperties();
-		show('monster0');
-		
-	}
 	
-	function attackTarget(monster){
-		var result = s.computeAttack(s,monster);
-		if(result == 2){
-			removeEnnemy(monster.id);
-		}
-	}
-	
-	function upgrade(attr){
-		s.upgrade(attr);
-	}
-	
-	var ennemies = [];
-	var idnext = 1;
-	var currentEnnemies = 0;
-	var ennemyCards = [null,null,null,null,null,null,null];
-	var partyCards = [null,null,null,null,null,null,null];
-	var skills = [];
-	skills['Heal'] = Heal;
-	
-	function nextFreeCard(cards){
-		for(var i =1;i<cards.length;i++){
-			if(cards[i] == null) return i;
-		}
-		return 0;
-	}
-	
-	function randomMonster(){
-		var res = Math.ceil( Math.random() * currentEnnemies);
-		for(var i = 1;i<ennemyCards.length;i++){
-			if(ennemyCards[i] != null){
-				res --;
-				if(!res){
-					return ennemyCards[i];
-				}
-			}
-		}
-		return null;
-	}
-	
-	function testrandm(){
-		var results = [];
-		for(var j=0;j<10000;j++){
-			var m  =randomMonster();
-			var id;
-			if(m == null){
-				id = 0;
-			}else{
-				id = m.id;
-			}
-			if(results[id]){
-				results[id]++;
-			}else{
-				results[id] = 1;
-			}
-		}
-		console.log(results);
-	}
-	
-	function addEnnemy(){
-		var free = nextFreeCard(ennemyCards);
-		if(free && !s.dead){
-			var divE = document.createElement('div');
-			divE.id = 'monster'+idnext;
-			divE.className = 'divmonster';
-			divE.innerHTML = 
-			'<span id="monster'+idnext+'name"></span><br/>'+
-			'<img src="13.jpg" alt="Ennemy" height="150" width="150" id="imgennemy'+idnext+'"><br/>'+
-			'<div class="maxlifebar"><div class="lifebar" id="lifebarm'+idnext+'"></div></div>'+
-			//'health : <span id="monster'+idnext+'health"></span>/<span id="monster'+idnext+'maxhealth"></span><br/>'+
-			'<input type="button" value="attack" onclick="attackTarget(ennemies['+idnext+'])"/>';
-			
-			
-			document.getElementById('ennemy'+free+'card').appendChild(divE);
-			var newm = new Monster(idnext);
-			ennemyCards[free] = newm;
-			ennemies[idnext] = newm;
-			newm.showProperties();
-			//newm.attackChar();
-			idnext ++;
-			currentEnnemies++;
-		}
-	}
-	
-	function showBars(entity){
-		var maxw;
-		var suffix = '';
-		if(entity.isMonster){
-			suffix = 'm';
-			maxw = 150;
-		}else{
-			maxw = 75;
-		}
-		var w = Math.round(maxw * entity.health / entity.maxhealth);
-		if(document.getElementById('lifebar'+suffix+entity.id) ){
-			document.getElementById('lifebar'+suffix+entity.id).style.width = w+'px';
-		}
-	}
-	
-	function getCard(monsterId){
-		for(var i =1;i<ennemyCards.length;i++){
-			if(ennemyCards[i] != null
-			&& ennemyCards[i].id == monsterId) return i;
-		}
-		return 0;
-	}
-	
-	function removeEnnemy(id){
-		document.getElementById('ennemy'+getCard(id)+'card').removeChild(document.getElementById('monster'+id));
-		ennemies[id] = null;
-		ennemyCards[getCard(id)] = null;
-		currentEnnemies--;
-	}
-	
-	function showDead(){
-		document.getElementById('character').style='background-color:#900000;';
-		for(var i=1;i<ennemies.length;i++){
-			if(ennemies[i] != null){
-				removeEnnemy(i);
-			}
-		}
-	}
 	
 	/*
 	function attackChar(monsterid){
@@ -171,7 +44,7 @@
 	}
 	*/
 	//setCookie('test','01');
-	console.log('save='+getCookie('save'));
+	//console.log('save='+getCookie('save'));
 </script>
 
 <div id="leftPanel">
@@ -189,6 +62,7 @@
 	</div>
 	<div id="middleMenu">
 		<input type="button" value="Summon monster" onclick="addEnnemy()"/>
+		<input type="button" value="attack" onclick="attackTarget()"/>
 	</div>
 	<div id="partyWindow">
 			<div id="party2card" class="partyCard"></div>
@@ -206,38 +80,11 @@
 		<div id="mapWindow" style="display:none">
 		</div>
 	</div>
-	<div id="rightMenu"></div>
+	<div id="rightMenu">
+		<input type="button" value="learned skills" onclick="showSkills()"/>
+	</div>
 	<div id="characterWindow">
-		<div id="character">
-			name : <span id="playername"></span><br/>
-			level : <span id="level"></span><br/>
-			gold : <span id="gold"></span><br/>
-			health : <span id="health"></span>/<span id="maxhealth"></span><br/>
-			endurance : <span id="endurance"></span>/<span id="maxendurance"></span><br/>
-			mana : <span id="mana"></span>/<span id="maxmana"></span><br/>
-			mind : <span id="mind"></span>/<span id="maxmind"></span><br/>
-			exp : <span id="exp"></span><br/>
-		</div>
-		<div id="attributes">
-		available points : <span id="points"></span><br/>
-			strength : <span id="strength"></span>
-			<input type="button" value="+" onclick="upgrade('strength')"/><br/>
-			constitution : <span id="constitution"></span>
-			<input type="button" value="+" onclick="upgrade('constitution')"/><br/>
-			dexterity : <span id="dexterity"></span>
-			<input type="button" value="+" onclick="upgrade('dexterity')"/><br/>
-			perception : <span id="perception"></span>
-			<input type="button" value="+" onclick="upgrade('perception')"/><br/>
-			spirit : <span id="spirit"></span>
-			<input type="button" value="+" onclick="upgrade('spirit')"/><br/>
-			wisdom : <span id="wisdom"></span>
-			<input type="button" value="+" onclick="upgrade('wisdom')"/><br/>
-			luck : <span id="luck"></span>
-			<input type="button" value="+" onclick="upgrade('luck')"/><br/>
-			speed : <span id="speed"></span>
-			<input type="button" value="+" onclick="upgrade('speed')"/><br/>
-		</div>
-
+		<!-- Sera rempli dynamiquement -->
 	</div>
 </div>
 
@@ -248,8 +95,8 @@
 
 
 <script>
-	s.init();
-//console.log(m);
+	init();
+	
 </script>
 
 
